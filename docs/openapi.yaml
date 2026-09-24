@@ -15,7 +15,9 @@ info:
 
     **Дисклеймер.** Прогнозы учебные, не ставки и не финансовая рекомендация.
 
-    Эндпоинты разбиты по разделам: служебные, матчи, прогнозы, модель.
+    Эндпоинты разбиты по разделам: служебные, матчи, прогнозы, модель, задачи.
+    Календарь upcoming можно обновлять без консоли: GET/POST /api/v1/jobs/sync-upcoming
+    и фоновый опрос раз в час (SYNC_INTERVAL).
   contact:
     name: Команда Cyber Predict
     url: https://github.com/lilberdi/cyber-predict
@@ -35,6 +37,8 @@ tags:
     description: Вероятность победы по конкретному матчу. Пишет Python, отдаёт Gin.
   - name: Модель
     description: Метрики последнего обучения и источники данных. Страница «О модели».
+  - name: Задачи
+    description: Ручной запуск синхронизации календаря с PandaScore (тот же код, что тикер раз в час).
 
 paths:
   /health:
@@ -237,6 +241,46 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
+
+  /api/v1/jobs/sync-upcoming:
+    get:
+      tags: [Задачи]
+      operationId: syncUpcomingGet
+      summary: Обновить предстоящие матчи (топ-60)
+      description: |
+        Тянет календарь CS2 с PandaScore и оставляет матчи команд из топ-набора
+        (seed известных оргов + топ по нашему Elo, размер TOP_TEAMS, по умолчанию 60).
+        По умолчанию нужны обе команды из набора; если таких пар нет — оставляем матчи,
+        где хотя бы одна сторона в топ-наборе.
+
+        Тот же код запускается сам раз в час (SYNC_INTERVAL). Консоль python -m ml sync
+        больше не обязательна.
+
+        Нужен PANDASCORE_TOKEN. Успешный sync удаляет старые fixture-upcoming.
+        Для новых матчей пишется быстрый Elo-прогноз (elo_sync), пока не пересчитаете полный logreg.
+      parameters:
+        - name: X-Sync-Key
+          in: header
+          required: false
+          description: Нужен только если задан SYNC_SECRET
+          schema: { type: string }
+      responses:
+        "200":
+          description: Календарь обновлён или частично обновлён
+        "401":
+          description: Неверный X-Sync-Key
+        "502":
+          description: PandaScore недоступен или нет токена
+    post:
+      tags: [Задачи]
+      operationId: syncUpcomingPost
+      summary: Обновить предстоящие матчи (POST)
+      description: То же, что GET /api/v1/jobs/sync-upcoming. Удобно вызывать из крона снаружи.
+      responses:
+        "200":
+          description: Календарь обновлён
+        "502":
+          description: PandaScore недоступен
 
   /api/v1/model/metrics:
     get:

@@ -24,6 +24,12 @@ services:
       DATABASE_URL: postgres://cyber:cyber@postgres:5432/cyber_predict?sslmode=disable
       CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:3000}
       MIGRATIONS_PATH: file://migrations
+      PANDASCORE_TOKEN: ${PANDASCORE_TOKEN:-}
+      PANDASCORE_BASE_URL: ${PANDASCORE_BASE_URL:-https://api.pandascore.co}
+      SYNC_INTERVAL: ${SYNC_INTERVAL:-1h}
+      SYNC_SECRET: ${SYNC_SECRET:-}
+      TOP_TEAMS: ${TOP_TEAMS:-60}
+      SYNC_REQUIRE_BOTH: ${SYNC_REQUIRE_BOTH:-false}
     depends_on:
       postgres:
         condition: service_healthy

@@ -10,6 +10,7 @@
 
 - Схема БД, миграции, Docker Compose (`api` + `postgres`).
 - REST для upcoming / карточки матча / прогноза / метрик модели + Swagger по группам.
+- Календарь PandaScore: `GET/POST /api/v1/jobs/sync-upcoming` и тикер раз в час, фильтр топ-60 команд.
 - Baseline: Elo + логистическая регрессия (хронологический split, без утечки post-match статы).
 - `python -m ml sync` — PandaScore или `data/fixtures/upcoming.json`.
 

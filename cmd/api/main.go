@@ -6,13 +6,16 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"strconv"
 	"syscall"
 	"time"
 
 	"github.com/lilberdi/cyber-predict/internal/config"
 	"github.com/lilberdi/cyber-predict/internal/handler"
 	"github.com/lilberdi/cyber-predict/internal/migrate"
+	"github.com/lilberdi/cyber-predict/internal/pandascore"
 	"github.com/lilberdi/cyber-predict/internal/store"
+	"github.com/lilberdi/cyber-predict/internal/syncjob"
 )
 
 func main() {
@@ -35,7 +38,26 @@ func main() {
 	}
 	defer db.Close()
 
-	router := handler.NewRouter(&handler.API{Store: db}, cfg.CORSOrigin)
+	topN, _ := strconv.Atoi(cfg.TopTeams)
+	if topN <= 0 {
+		topN = 60
+	}
+	job := &syncjob.Job{
+		Store:       db,
+		Client:      pandascore.New(cfg.PandaScoreBase, cfg.PandaScoreToken),
+		TopN:        topN,
+		RequireBoth: cfg.SyncRequireBoth != "false",
+	}
+
+	ctxRun, stopJobs := context.WithCancel(context.Background())
+	defer stopJobs()
+	if every, err := syncjob.ParseInterval(cfg.SyncInterval); err != nil {
+		log.Printf("sync interval: %v", err)
+	} else if every > 0 {
+		go job.Loop(ctxRun, every)
+	}
+
+	router := handler.NewRouter(&handler.API{Store: db, Sync: job, SyncSecret: cfg.SyncSecret}, cfg.CORSOrigin)
 	srv := &http.Server{
 		Addr:              ":" + cfg.Port,
 		Handler:           router,

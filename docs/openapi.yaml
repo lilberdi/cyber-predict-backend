@@ -3,123 +3,356 @@ info:
   title: Cyber Predict API
   version: 0.1.0
   description: |
-    Контракт недель 1–4. Gin только читает PostgreSQL.
-    Прогнозы пишет Python (`python -m ml train` / `python -m ml predict`).
-    Прогнозы учебные, не являются ставками.
+    Учебный API системы прогнозов матчей **Counter-Strike 2**.
+
+    **Зачем этот сервис.** Фронтенд (и преподаватель на защите) забирает отсюда
+    календарь ближайших матчей, вероятность победы и качество модели.
+    Gin **только читает** PostgreSQL. Считает прогнозы Python:
+    `python -m ml train`, `python -m ml sync`, `python -m ml predict`.
+
+    **Данные.** HLTV не парсим (ToS, п. 2.2). Upcoming — PandaScore или локальные фикстуры.
+    История обучения — sample / licensed датасет.
+
+    **Дисклеймер.** Прогнозы учебные, не ставки и не финансовая рекомендация.
+
+    Эндпоинты разбиты по разделам: служебные, матчи, прогнозы, модель.
+  contact:
+    name: Команда Cyber Predict
+    url: https://github.com/lilberdi/cyber-predict
+
 servers:
-  - url: http://localhost:18080
+  - url: /
+    description: Текущий хост (тот же, что открыл Swagger)
+  - url: http://localhost:8082
+    description: Локальный Docker / go run (PORT из .env)
+
+tags:
+  - name: Служебные
+    description: Проверка, что процесс жив и видит базу. Нужны для Docker, демо и мониторинга.
+  - name: Матчи
+    description: Календарь и карточка встречи. Основной список для главной страницы UI.
+  - name: Прогнозы
+    description: Вероятность победы по конкретному матчу. Пишет Python, отдаёт Gin.
+  - name: Модель
+    description: Метрики последнего обучения и источники данных. Страница «О модели».
+
 paths:
   /health:
     get:
-      summary: Liveness + Postgres ping
+      tags: [Служебные]
+      operationId: getHealth
+      summary: Проверка живости API и соединения с PostgreSQL
+      description: |
+        **Зачем.** Показать, что контейнер `api` поднялся и доходит до БД.
+        Compose, скрипты и препод на защите начинают с этого URL.
+
+        **Что делает.** `Ping` к PostgreSQL.
+        - `200` и `{"status":"ok"}` — процесс и БД в порядке.
+        - `503` — API слушает, но база недоступна (не путать с «сервис выключен»).
+
+        Не читает матчи и не вызывает модель.
       responses:
         "200":
-          description: OK
+          description: Сервис и база доступны
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthOk"
+              example:
+                status: ok
         "503":
-          description: Database unreachable
+          description: База не отвечает
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthDegraded"
+              example:
+                status: degraded
+                error: "ping postgres: connection refused"
+
   /api/v1/matches/upcoming:
     get:
-      summary: Предстоящие и идущие матчи с вложенным прогнозом, если он уже посчитан
+      tags: [Матчи]
+      operationId: listUpcomingMatches
+      summary: Список предстоящих и идущих матчей
+      description: |
+        **Зачем.** Главный экран продукта: какие CS2-матчи скоро начнутся
+        и какая вероятность победы уже посчитана.
+
+        **Что делает.** Читает из PostgreSQL матчи со статусом `upcoming` или `running`,
+        сортирует по `scheduled_at`, слева джойнит таблицу `predictions`.
+        Если Python ещё не вызывал `predict`, поле `prediction` будет `null`.
+
+        Не ходит в PandaScore в момент запроса — календарь заранее кладёт `python -m ml sync`.
       parameters:
-        - in: query
-          name: limit
+        - name: limit
+          in: query
+          required: false
+          description: Сколько матчей вернуть. По умолчанию 50, максимум 100. Меньше 1 тоже становится 50.
           schema:
             type: integer
             default: 50
+            minimum: 1
             maximum: 100
+            example: 8
       responses:
         "200":
-          description: Список матчей
+          description: Список матчей; может быть пустым массивом
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  data:
-                    type: array
-                    items:
-                      $ref: "#/components/schemas/Match"
+                $ref: "#/components/schemas/MatchListResponse"
+              example:
+                data:
+                  - id: 481
+                    external_id: fx-001
+                    source: fixture
+                    status: upcoming
+                    best_of: 3
+                    scheduled_at: "2026-09-25T16:00:00Z"
+                    tournament: BLAST Open
+                    team1: { id: 5, name: Team Spirit }
+                    team2: { id: 4, name: Vitality }
+                    score: { team1: null, team2: null }
+                    prediction:
+                      match_id: 481
+                      model_name: elo_logreg
+                      model_version: "0.1.0"
+                      p_team1_win: 0.58
+                      p_team2_win: 0.42
+                      confidence: medium
+                      explanation: Team Spirit оценивается выше.
+        "500":
+          description: Ошибка чтения PostgreSQL
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
   /api/v1/matches/{id}:
     get:
-      summary: Карточка матча
+      tags: [Матчи]
+      operationId: getMatchById
+      summary: Карточка одного матча
+      description: |
+        **Зачем.** Экран деталки: команды, формат BO1/BO3/BO5, турнир, счёт
+        (если матч уже сыгран) и вложенный прогноз.
+
+        **Что делает.** Ищет матч по внутреннему `id` (не `external_id` PandaScore).
+        Тот же состав полей, что у элемента списка upcoming.
+
+        `id` берётся из ответа `/matches/upcoming`, а не придумывается руками.
       parameters:
-        - $ref: "#/components/parameters/ID"
+        - $ref: "#/components/parameters/MatchID"
       responses:
         "200":
-          description: Матч
+          description: Матч найден
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  data:
-                    $ref: "#/components/schemas/Match"
+                $ref: "#/components/schemas/MatchResponse"
+        "400":
+          description: "`id` не целое положительное число"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                error: { code: bad_request, message: id must be a positive integer }
         "404":
-          description: Не найден
+          description: Матча с таким id нет
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                error: { code: not_found, message: match not found }
+        "500":
+          description: Ошибка чтения PostgreSQL
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
   /api/v1/predictions/{id}:
     get:
-      summary: Прогноз по id матча
+      tags: [Прогнозы]
+      operationId: getPredictionByMatchId
+      summary: Прогноз исхода по id матча
+      description: |
+        **Зачем.** Отдельно отдать вероятность, когда UI уже знает матч
+        или когда нужна только модель без карточки команд.
+
+        **Что делает.** Ищет строку в `predictions`, где `match_id` = `{id}`.
+        Путь `{id}` — это **id матча**, не суррогатный id прогноза.
+
+        В ответе:
+        - `p_team1_win` / `p_team2_win` — вероятности, сумма ≈ 1;
+        - `confidence` — low / medium / high по отрыву от 0.5;
+        - `top_features` — вклад Elo, формы, H2H (без post-match статы);
+        - `explanation` — короткое пояснение на русском.
+
+        **404**, если `python -m ml predict` ещё не считал этот матч.
+        Модель в HTTP-запросе не вызывается.
       parameters:
-        - $ref: "#/components/parameters/ID"
+        - $ref: "#/components/parameters/MatchID"
       responses:
         "200":
-          description: Прогноз
+          description: Прогноз найден
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  data:
-                    $ref: "#/components/schemas/Prediction"
+                $ref: "#/components/schemas/PredictionResponse"
+              example:
+                data:
+                  match_id: 481
+                  model_name: elo_logreg
+                  model_version: "0.1.0"
+                  p_team1_win: 0.5788
+                  p_team2_win: 0.4212
+                  confidence: medium
+                  top_features:
+                    - { name: elo_diff, value: 41.29, impact: favors_team1 }
+                    - { name: form5_diff, value: 0.2, impact: favors_team1 }
+                    - { name: h2h_diff, value: 0.0, impact: favors_team2 }
+                  explanation: Team Spirit оценивается выше (58% для Team Spirit). Разница Elo +41.
+                  created_at: "2026-09-24T18:36:59Z"
+        "400":
+          description: Некорректный id
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
         "404":
           description: Прогноз ещё не посчитан
-  /api/v1/model/metrics:
-    get:
-      summary: Последние метрики обученной модели
-      responses:
-        "200":
-          description: Метрики
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  data:
-                    $ref: "#/components/schemas/ModelMetrics"
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                error: { code: not_found, message: prediction not found }
+        "500":
+          description: Ошибка чтения PostgreSQL
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /api/v1/model/metrics:
+    get:
+      tags: [Модель]
+      operationId: getModelMetrics
+      summary: Метрики последнего обучения
+      description: |
+        **Зачем.** Страница «О модели» и отчёт для защиты: чем мерили качество
+        и с чем сравнивали (правило «всегда побеждает фаворит Elo»).
+
+        **Что делает.** Берёт последнюю строку `model_metrics` (после `python -m ml train`)
+        и добавляет дисклеймер плюс список источников данных.
+        Саму модель заново не обучает.
+
+        Поля для рассказа на защите:
+        - `accuracy` — доля верных исходов на хронологическом тесте;
+        - `log_loss`, `brier` — качество вероятностей (чем меньше, тем лучше);
+        - `elo_favorite_accuracy` — baseline без ML;
+        - `n_train` / `n_test` — размер выборки.
+
+        **404**, если train ещё не запускали.
+      responses:
+        "200":
+          description: Есть хотя бы одно обучение
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ModelMetricsResponse"
+              example:
+                data:
+                  model_name: elo_logreg
+                  model_version: "0.1.0"
+                  trained_at: "2026-09-24T18:36:59Z"
+                  n_train: 384
+                  n_test: 96
+                  accuracy: 0.65625
+                  log_loss: 0.657
+                  brier: 0.230
+                  elo_favorite_accuracy: 0.65625
+                  disclaimer: Учебный прототип. Прогнозы не являются ставками или финансовой рекомендацией.
+                  data_sources:
+                    - "historical: bundled sample CS2-style match history"
+                    - "upcoming: PandaScore or local fixtures"
         "404":
-          description: Модель ещё не обучали
+          description: Обучения ещё не было
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                error: { code: not_found, message: model has not been trained yet }
+        "500":
+          description: Ошибка чтения PostgreSQL
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
 components:
   parameters:
-    ID:
+    MatchID:
       name: id
       in: path
       required: true
+      description: Внутренний идентификатор матча из PostgreSQL (`matches.id`).
       schema:
         type: integer
         format: int64
+        minimum: 1
+        example: 481
+
   schemas:
+    HealthOk:
+      type: object
+      required: [status]
+      properties:
+        status:
+          type: string
+          enum: [ok]
+    HealthDegraded:
+      type: object
+      required: [status]
+      properties:
+        status:
+          type: string
+          enum: [degraded]
+        error:
+          type: string
     Team:
       type: object
       required: [id, name]
+      description: Команда в карточке матча
       properties:
-        id: { type: integer, format: int64 }
-        name: { type: string, example: Vitality }
+        id: { type: integer, format: int64, example: 5 }
+        name: { type: string, example: Team Spirit }
         slug: { type: string, nullable: true }
         image_url: { type: string, nullable: true }
     Score:
       type: object
+      description: Счёт по картам. Для upcoming оба поля null.
       properties:
         team1: { type: integer, nullable: true }
         team2: { type: integer, nullable: true }
     FeatureContribution:
       type: object
+      description: Один pre-match признак и в чью пользу он играет
       properties:
         name: { type: string, example: elo_diff }
-        value: { type: number, example: 42.5 }
-        impact: { type: string, example: favors_team1 }
+        value: { type: number, example: 41.29 }
+        impact:
+          type: string
+          enum: [favors_team1, favors_team2]
     Prediction:
       type: object
       required: [match_id, model_name, model_version, p_team1_win, p_team2_win]
+      description: Вероятность победы team1 / team2 на момент расчёта
       properties:
         match_id: { type: integer, format: int64 }
         model_name: { type: string, example: elo_logreg }
@@ -136,9 +369,10 @@ components:
     Match:
       type: object
       required: [id, source, status, team1, team2]
+      description: Встреча двух команд. Прогноз вложен, если уже посчитан.
       properties:
         id: { type: integer, format: int64 }
-        external_id: { type: string, nullable: true }
+        external_id: { type: string, nullable: true, description: "ps-… или fx-… или sample-…" }
         source: { type: string, enum: [pandascore, dataset, fixture] }
         status: { type: string, enum: [upcoming, running, finished] }
         best_of: { type: integer, nullable: true }
@@ -155,6 +389,7 @@ components:
           nullable: true
     ModelMetrics:
       type: object
+      description: Последний отчёт обучения + юридические пометки
       properties:
         model_name: { type: string }
         model_version: { type: string }
@@ -169,11 +404,41 @@ components:
         data_sources:
           type: array
           items: { type: string }
-    Error:
+    ErrorBody:
       type: object
+      required: [code, message]
+      properties:
+        code: { type: string, example: not_found }
+        message: { type: string }
+    ErrorResponse:
+      type: object
+      required: [error]
       properties:
         error:
-          type: object
-          properties:
-            code: { type: string }
-            message: { type: string }
+          $ref: "#/components/schemas/ErrorBody"
+    MatchListResponse:
+      type: object
+      required: [data]
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/Match"
+    MatchResponse:
+      type: object
+      required: [data]
+      properties:
+        data:
+          $ref: "#/components/schemas/Match"
+    PredictionResponse:
+      type: object
+      required: [data]
+      properties:
+        data:
+          $ref: "#/components/schemas/Prediction"
+    ModelMetricsResponse:
+      type: object
+      required: [data]
+      properties:
+        data:
+          $ref: "#/components/schemas/ModelMetrics"

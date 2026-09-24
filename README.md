@@ -4,12 +4,12 @@
 
 Прогнозы учебные, не ставки. **HLTV не парсим** (ToS п. 2.2). Календарь upcoming — [PandaScore](https://developers.pandascore.co/) или локальные фикстуры. Подробности: [data/ATTRIBUTION.md](data/ATTRIBUTION.md).
 
-Документы дисциплины «Управление проектами»: [docs/pm](docs/pm). Контракт API: [docs/openapi.yaml](docs/openapi.yaml).
+Документы дисциплины «Управление проектами»: [docs/pm](docs/pm). Интерактивный контракт: **Swagger UI** `/swagger/` (спека [docs/openapi.yaml](docs/openapi.yaml)).
 
 ## Что готово (недели 1–4)
 
 - Схема БД, миграции, Docker Compose (`api` + `postgres`).
-- REST для upcoming / карточки матча / прогноза / метрик модели.
+- REST для upcoming / карточки матча / прогноза / метрик модели + Swagger по группам.
 - Baseline: Elo + логистическая регрессия (хронологический split, без утечки post-match статы).
 - `python -m ml sync` — PandaScore или `data/fixtures/upcoming.json`.
 
@@ -34,9 +34,10 @@ python3.11 -m ml predict
 Проверка:
 
 ```bash
-curl -s localhost:${PORT:-18080}/health
-curl -s localhost:${PORT:-18080}/api/v1/matches/upcoming
-curl -s localhost:${PORT:-18080}/api/v1/model/metrics
+open http://localhost:${PORT:-8082}/swagger/
+curl -s localhost:${PORT:-8082}/health
+curl -s localhost:${PORT:-8082}/api/v1/matches/upcoming
+curl -s localhost:${PORT:-8082}/api/v1/model/metrics
 ```
 
 Живой календарь: зарегистрируйтесь на [app.pandascore.co](https://app.pandascore.co/signup) и положите токен в `PANDASCORE_TOKEN`. Без токена sync берёт фикстуры.

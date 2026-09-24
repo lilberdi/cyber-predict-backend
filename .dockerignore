@@ -3,7 +3,7 @@
 .venv
 __pycache__
 notebooks
-docs
+docs/pm
 *.md
 ml/artifacts/*.joblib
 .env

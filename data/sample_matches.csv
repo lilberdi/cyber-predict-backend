@@ -1,0 +1,481 @@
+match_id,played_at,team1,team2,score1,score2,best_of,tournament,tournament_tier,winner
+sample-0001,2024-03-01T01:00:00+00:00,Imperial,Falcons,2,0,3,ESL Pro League,S,Imperial
+sample-0002,2024-03-01T11:00:00+00:00,Rare Atom,Falcons,0,3,5,Thunderpick,A,Falcons
+sample-0003,2024-03-01T17:00:00+00:00,Vitality,Team Spirit,2,0,3,Thunderpick,A,Vitality
+sample-0004,2024-03-02T04:00:00+00:00,Wildcard,Imperial,0,2,3,CCT,A,Imperial
+sample-0005,2024-03-02T10:00:00+00:00,Aurora,Team Spirit,1,2,3,IEM,S,Team Spirit
+sample-0006,2024-03-02T19:00:00+00:00,FURIA,G2,0,2,3,BLAST Premier,S,G2
+sample-0007,2024-03-03T05:00:00+00:00,Falcons,Heroic,1,3,5,BLAST Premier,S,Heroic
+sample-0008,2024-03-03T10:00:00+00:00,paiN,3DMAX,2,0,3,Thunderpick,A,paiN
+sample-0009,2024-03-03T16:00:00+00:00,Imperial,SAW,0,2,3,RES Regional,B,SAW
+sample-0010,2024-03-04T06:00:00+00:00,Vitality,M80,2,0,3,ESL Pro League,S,Vitality
+sample-0011,2024-03-04T10:00:00+00:00,Falcons,Astralis,2,0,3,IEM,S,Falcons
+sample-0012,2024-03-04T21:00:00+00:00,G2,M80,1,0,1,Thunderpick,A,G2
+sample-0013,2024-03-05T02:00:00+00:00,Natus Vincere,3DMAX,2,1,3,CCT,A,Natus Vincere
+sample-0014,2024-03-05T14:00:00+00:00,Imperial,Wildcard,0,2,3,ESL Pro League,S,Wildcard
+sample-0015,2024-03-05T20:00:00+00:00,Vitality,FaZe,1,0,1,ESL Pro League,S,Vitality
+sample-0016,2024-03-06T03:00:00+00:00,Wildcard,FaZe,2,1,3,RES Regional,B,Wildcard
+sample-0017,2024-03-06T13:00:00+00:00,FURIA,Aurora,3,2,5,IEM,S,FURIA
+sample-0018,2024-03-06T17:00:00+00:00,BIG,Complexity,1,2,3,ESL Pro League,S,Complexity
+sample-0019,2024-03-07T01:00:00+00:00,Legacy,B8,1,0,1,BLAST Premier,S,Legacy
+sample-0020,2024-03-07T11:00:00+00:00,Imperial,Natus Vincere,0,2,3,CCT,A,Natus Vincere
+sample-0021,2024-03-07T21:00:00+00:00,SAW,paiN,0,3,5,RES Regional,B,paiN
+sample-0022,2024-03-08T02:00:00+00:00,Falcons,M80,1,2,3,BLAST Premier,S,M80
+sample-0023,2024-03-08T08:00:00+00:00,Complexity,Natus Vincere,0,2,3,Thunderpick,A,Natus Vincere
+sample-0024,2024-03-08T17:00:00+00:00,Imperial,Team Liquid,2,3,5,ESL Pro League,S,Team Liquid
+sample-0025,2024-03-09T02:00:00+00:00,Heroic,Natus Vincere,0,3,5,Thunderpick,A,Natus Vincere
+sample-0026,2024-03-09T08:00:00+00:00,B8,Team Spirit,2,1,3,ESL Pro League,S,B8
+sample-0027,2024-03-09T19:00:00+00:00,The MongolZ,BIG,0,1,1,RES Regional,B,BIG
+sample-0028,2024-03-10T01:00:00+00:00,MOUZ,3DMAX,2,1,3,Thunderpick,A,MOUZ
+sample-0029,2024-03-10T14:00:00+00:00,Aurora,Legacy,0,2,3,Thunderpick,A,Legacy
+sample-0030,2024-03-10T21:00:00+00:00,Rare Atom,Wildcard,2,1,3,RES Regional,B,Rare Atom
+sample-0031,2024-03-11T01:00:00+00:00,Heroic,paiN,0,2,3,ESL Pro League,S,paiN
+sample-0032,2024-03-11T09:00:00+00:00,MOUZ,FaZe,3,0,5,Thunderpick,A,MOUZ
+sample-0033,2024-03-11T16:00:00+00:00,Team Spirit,MOUZ,0,1,1,ESL Pro League,S,MOUZ
+sample-0034,2024-03-12T03:00:00+00:00,Vitality,FaZe,2,1,3,RES Regional,B,Vitality
+sample-0035,2024-03-12T09:00:00+00:00,G2,3DMAX,3,2,5,CCT,A,G2
+sample-0036,2024-03-12T19:00:00+00:00,B8,Complexity,1,0,1,RES Regional,B,B8
+sample-0037,2024-03-13T05:00:00+00:00,Heroic,Complexity,1,0,1,RES Regional,B,Heroic
+sample-0038,2024-03-13T09:00:00+00:00,Imperial,Falcons,2,0,3,ESL Pro League,S,Imperial
+sample-0039,2024-03-13T19:00:00+00:00,G2,3DMAX,2,0,3,IEM,S,G2
+sample-0040,2024-03-14T05:00:00+00:00,The MongolZ,MOUZ,0,3,5,BLAST Premier,S,MOUZ
+sample-0041,2024-03-14T11:00:00+00:00,3DMAX,Team Spirit,0,2,3,CCT,A,Team Spirit
+sample-0042,2024-03-14T19:00:00+00:00,B8,G2,0,1,1,ESL Pro League,S,G2
+sample-0043,2024-03-15T05:00:00+00:00,Team Spirit,Astralis,2,1,3,CCT,A,Team Spirit
+sample-0044,2024-03-15T10:00:00+00:00,Rare Atom,3DMAX,0,2,3,ESL Pro League,S,3DMAX
+sample-0045,2024-03-15T18:00:00+00:00,G2,Vitality,0,3,5,RES Regional,B,Vitality
+sample-0046,2024-03-16T04:00:00+00:00,Vitality,BIG,3,0,5,BLAST Premier,S,Vitality
+sample-0047,2024-03-16T14:00:00+00:00,MOUZ,Natus Vincere,1,0,1,RES Regional,B,MOUZ
+sample-0048,2024-03-16T20:00:00+00:00,The MongolZ,Astralis,3,0,5,Thunderpick,A,The MongolZ
+sample-0049,2024-03-17T02:00:00+00:00,Vitality,SAW,3,2,5,Thunderpick,A,Vitality
+sample-0050,2024-03-17T11:00:00+00:00,Aurora,G2,0,2,3,IEM,S,G2
+sample-0051,2024-03-17T16:00:00+00:00,FURIA,M80,2,1,3,BLAST Premier,S,FURIA
+sample-0052,2024-03-18T04:00:00+00:00,paiN,SAW,0,1,1,BLAST Premier,S,SAW
+sample-0053,2024-03-18T10:00:00+00:00,G2,Legacy,2,0,3,ESL Pro League,S,G2
+sample-0054,2024-03-18T20:00:00+00:00,Team Liquid,Natus Vincere,2,3,5,IEM,S,Natus Vincere
+sample-0055,2024-03-19T00:00:00+00:00,Imperial,Legacy,3,1,5,RES Regional,B,Imperial
+sample-0056,2024-03-19T12:00:00+00:00,FURIA,Aurora,1,0,1,RES Regional,B,FURIA
+sample-0057,2024-03-19T21:00:00+00:00,FURIA,Aurora,2,1,3,ESL Pro League,S,FURIA
+sample-0058,2024-03-20T05:00:00+00:00,Imperial,Aurora,0,2,3,BLAST Premier,S,Aurora
+sample-0059,2024-03-20T10:00:00+00:00,Complexity,Aurora,2,0,3,RES Regional,B,Complexity
+sample-0060,2024-03-20T16:00:00+00:00,Natus Vincere,Rare Atom,2,0,3,BLAST Premier,S,Natus Vincere
+sample-0061,2024-03-21T01:00:00+00:00,Wildcard,FURIA,0,2,3,CCT,A,FURIA
+sample-0062,2024-03-21T09:00:00+00:00,Vitality,Team Liquid,1,0,1,IEM,S,Vitality
+sample-0063,2024-03-21T21:00:00+00:00,M80,The MongolZ,1,2,3,Thunderpick,A,The MongolZ
+sample-0064,2024-03-22T01:00:00+00:00,FURIA,The MongolZ,1,2,3,BLAST Premier,S,The MongolZ
+sample-0065,2024-03-22T09:00:00+00:00,Rare Atom,FaZe,0,2,3,IEM,S,FaZe
+sample-0066,2024-03-22T17:00:00+00:00,Wildcard,Falcons,0,1,1,CCT,A,Falcons
+sample-0067,2024-03-23T05:00:00+00:00,G2,paiN,2,0,3,BLAST Premier,S,G2
+sample-0068,2024-03-23T10:00:00+00:00,G2,Astralis,1,0,1,IEM,S,G2
+sample-0069,2024-03-23T16:00:00+00:00,Imperial,Legacy,3,1,5,BLAST Premier,S,Imperial
+sample-0070,2024-03-24T04:00:00+00:00,Aurora,Natus Vincere,0,2,3,BLAST Premier,S,Natus Vincere
+sample-0071,2024-03-24T12:00:00+00:00,Complexity,Heroic,1,2,3,Thunderpick,A,Heroic
+sample-0072,2024-03-24T21:00:00+00:00,Falcons,Astralis,1,2,3,BLAST Premier,S,Astralis
+sample-0073,2024-03-25T05:00:00+00:00,Complexity,Team Spirit,2,3,5,RES Regional,B,Team Spirit
+sample-0074,2024-03-25T10:00:00+00:00,Rare Atom,M80,2,0,3,RES Regional,B,Rare Atom
+sample-0075,2024-03-25T18:00:00+00:00,SAW,FaZe,0,1,1,RES Regional,B,FaZe
+sample-0076,2024-03-26T02:00:00+00:00,Legacy,Team Liquid,1,2,3,RES Regional,B,Team Liquid
+sample-0077,2024-03-26T12:00:00+00:00,3DMAX,FURIA,2,0,3,Thunderpick,A,3DMAX
+sample-0078,2024-03-26T18:00:00+00:00,Team Liquid,Astralis,1,0,1,IEM,S,Team Liquid
+sample-0079,2024-03-27T03:00:00+00:00,G2,Complexity,2,3,5,IEM,S,Complexity
+sample-0080,2024-03-27T08:00:00+00:00,paiN,M80,2,0,3,RES Regional,B,paiN
+sample-0081,2024-03-27T22:00:00+00:00,Team Liquid,Legacy,3,1,5,BLAST Premier,S,Team Liquid
+sample-0082,2024-03-28T00:00:00+00:00,The MongolZ,M80,2,0,3,BLAST Premier,S,The MongolZ
+sample-0083,2024-03-28T11:00:00+00:00,The MongolZ,B8,1,0,1,CCT,A,The MongolZ
+sample-0084,2024-03-28T17:00:00+00:00,Imperial,BIG,2,1,3,CCT,A,Imperial
+sample-0085,2024-03-29T01:00:00+00:00,FURIA,Imperial,1,0,1,CCT,A,FURIA
+sample-0086,2024-03-29T09:00:00+00:00,Natus Vincere,Wildcard,1,0,1,Thunderpick,A,Natus Vincere
+sample-0087,2024-03-29T20:00:00+00:00,Falcons,paiN,2,1,3,CCT,A,Falcons
+sample-0088,2024-03-30T05:00:00+00:00,Rare Atom,Legacy,1,3,5,ESL Pro League,S,Legacy
+sample-0089,2024-03-30T11:00:00+00:00,B8,paiN,2,1,3,Thunderpick,A,B8
+sample-0090,2024-03-30T18:00:00+00:00,Imperial,The MongolZ,0,1,1,RES Regional,B,The MongolZ
+sample-0091,2024-03-31T01:00:00+00:00,The MongolZ,Aurora,3,0,5,ESL Pro League,S,The MongolZ
+sample-0092,2024-03-31T11:00:00+00:00,The MongolZ,Astralis,0,2,3,CCT,A,Astralis
+sample-0093,2024-03-31T22:00:00+00:00,FaZe,3DMAX,1,0,1,ESL Pro League,S,FaZe
+sample-0094,2024-04-01T06:00:00+00:00,Complexity,Astralis,2,3,5,BLAST Premier,S,Astralis
+sample-0095,2024-04-01T14:00:00+00:00,BIG,Astralis,1,2,3,CCT,A,Astralis
+sample-0096,2024-04-01T19:00:00+00:00,Complexity,3DMAX,2,3,5,ESL Pro League,S,3DMAX
+sample-0097,2024-04-02T02:00:00+00:00,The MongolZ,Aurora,1,0,1,CCT,A,The MongolZ
+sample-0098,2024-04-02T12:00:00+00:00,M80,Astralis,0,2,3,Thunderpick,A,Astralis
+sample-0099,2024-04-02T21:00:00+00:00,Team Spirit,Astralis,1,0,1,BLAST Premier,S,Team Spirit
+sample-0100,2024-04-03T03:00:00+00:00,Complexity,FURIA,0,2,3,IEM,S,FURIA
+sample-0101,2024-04-03T14:00:00+00:00,FaZe,G2,1,2,3,IEM,S,G2
+sample-0102,2024-04-03T20:00:00+00:00,Complexity,Aurora,0,2,3,RES Regional,B,Aurora
+sample-0103,2024-04-04T00:00:00+00:00,Vitality,Heroic,1,0,1,RES Regional,B,Vitality
+sample-0104,2024-04-04T09:00:00+00:00,Team Spirit,The MongolZ,1,0,1,Thunderpick,A,Team Spirit
+sample-0105,2024-04-04T17:00:00+00:00,The MongolZ,FURIA,0,1,1,Thunderpick,A,FURIA
+sample-0106,2024-04-05T04:00:00+00:00,paiN,Wildcard,2,0,3,Thunderpick,A,paiN
+sample-0107,2024-04-05T12:00:00+00:00,Rare Atom,Wildcard,2,1,3,BLAST Premier,S,Rare Atom
+sample-0108,2024-04-05T17:00:00+00:00,Team Spirit,Team Liquid,2,1,3,RES Regional,B,Team Spirit
+sample-0109,2024-04-06T06:00:00+00:00,MOUZ,BIG,2,0,3,RES Regional,B,MOUZ
+sample-0110,2024-04-06T14:00:00+00:00,Team Liquid,M80,1,0,1,Thunderpick,A,Team Liquid
+sample-0111,2024-04-06T21:00:00+00:00,Vitality,Heroic,2,0,3,Thunderpick,A,Vitality
+sample-0112,2024-04-07T02:00:00+00:00,FaZe,Team Spirit,0,2,3,CCT,A,Team Spirit
+sample-0113,2024-04-07T12:00:00+00:00,Imperial,paiN,0,2,3,RES Regional,B,paiN
+sample-0114,2024-04-07T19:00:00+00:00,Imperial,Aurora,1,3,5,CCT,A,Aurora
+sample-0115,2024-04-08T03:00:00+00:00,Rare Atom,BIG,2,0,3,IEM,S,Rare Atom
+sample-0116,2024-04-08T11:00:00+00:00,The MongolZ,paiN,2,1,3,BLAST Premier,S,The MongolZ
+sample-0117,2024-04-08T18:00:00+00:00,FaZe,Natus Vincere,1,2,3,IEM,S,Natus Vincere
+sample-0118,2024-04-09T01:00:00+00:00,SAW,Wildcard,0,3,5,Thunderpick,A,Wildcard
+sample-0119,2024-04-09T11:00:00+00:00,MOUZ,The MongolZ,0,2,3,RES Regional,B,The MongolZ
+sample-0120,2024-04-09T18:00:00+00:00,Imperial,Wildcard,1,0,1,BLAST Premier,S,Imperial
+sample-0121,2024-04-10T04:00:00+00:00,The MongolZ,Astralis,1,2,3,CCT,A,Astralis
+sample-0122,2024-04-10T13:00:00+00:00,Legacy,Heroic,1,3,5,IEM,S,Heroic
+sample-0123,2024-04-10T17:00:00+00:00,paiN,Aurora,2,0,3,RES Regional,B,paiN
+sample-0124,2024-04-11T05:00:00+00:00,FaZe,Falcons,0,2,3,ESL Pro League,S,Falcons
+sample-0125,2024-04-11T08:00:00+00:00,B8,Aurora,2,3,5,IEM,S,Aurora
+sample-0126,2024-04-11T21:00:00+00:00,G2,Team Liquid,2,1,3,BLAST Premier,S,G2
+sample-0127,2024-04-12T02:00:00+00:00,3DMAX,FURIA,0,1,1,Thunderpick,A,FURIA
+sample-0128,2024-04-12T12:00:00+00:00,Wildcard,FURIA,0,2,3,BLAST Premier,S,FURIA
+sample-0129,2024-04-12T18:00:00+00:00,Team Liquid,B8,2,0,3,BLAST Premier,S,Team Liquid
+sample-0130,2024-04-13T04:00:00+00:00,B8,Falcons,1,2,3,BLAST Premier,S,Falcons
+sample-0131,2024-04-13T09:00:00+00:00,Imperial,M80,2,1,3,BLAST Premier,S,Imperial
+sample-0132,2024-04-13T17:00:00+00:00,Falcons,3DMAX,3,2,5,Thunderpick,A,Falcons
+sample-0133,2024-04-14T03:00:00+00:00,Legacy,Astralis,1,2,3,Thunderpick,A,Astralis
+sample-0134,2024-04-14T14:00:00+00:00,Team Liquid,BIG,3,2,5,BLAST Premier,S,Team Liquid
+sample-0135,2024-04-14T17:00:00+00:00,G2,Imperial,1,0,1,ESL Pro League,S,G2
+sample-0136,2024-04-15T03:00:00+00:00,Natus Vincere,3DMAX,1,0,1,CCT,A,Natus Vincere
+sample-0137,2024-04-15T10:00:00+00:00,Wildcard,SAW,0,1,1,ESL Pro League,S,SAW
+sample-0138,2024-04-15T17:00:00+00:00,Wildcard,Team Liquid,0,2,3,RES Regional,B,Team Liquid
+sample-0139,2024-04-16T04:00:00+00:00,Aurora,Imperial,2,1,3,BLAST Premier,S,Aurora
+sample-0140,2024-04-16T08:00:00+00:00,The MongolZ,Imperial,2,0,3,BLAST Premier,S,The MongolZ
+sample-0141,2024-04-16T16:00:00+00:00,Natus Vincere,Team Liquid,3,1,5,CCT,A,Natus Vincere
+sample-0142,2024-04-17T04:00:00+00:00,paiN,Wildcard,2,1,3,Thunderpick,A,paiN
+sample-0143,2024-04-17T13:00:00+00:00,B8,paiN,1,0,1,CCT,A,B8
+sample-0144,2024-04-17T21:00:00+00:00,FaZe,SAW,1,0,1,ESL Pro League,S,FaZe
+sample-0145,2024-04-18T03:00:00+00:00,BIG,Team Spirit,0,2,3,ESL Pro League,S,Team Spirit
+sample-0146,2024-04-18T11:00:00+00:00,Legacy,Imperial,2,0,3,Thunderpick,A,Legacy
+sample-0147,2024-04-18T18:00:00+00:00,Imperial,B8,1,2,3,CCT,A,B8
+sample-0148,2024-04-19T05:00:00+00:00,FaZe,M80,2,1,3,CCT,A,FaZe
+sample-0149,2024-04-19T08:00:00+00:00,B8,Team Liquid,0,2,3,CCT,A,Team Liquid
+sample-0150,2024-04-19T22:00:00+00:00,FaZe,Aurora,2,0,3,RES Regional,B,FaZe
+sample-0151,2024-04-20T06:00:00+00:00,3DMAX,paiN,2,1,3,Thunderpick,A,3DMAX
+sample-0152,2024-04-20T10:00:00+00:00,B8,Imperial,1,0,1,ESL Pro League,S,B8
+sample-0153,2024-04-20T16:00:00+00:00,3DMAX,FURIA,1,2,3,BLAST Premier,S,FURIA
+sample-0154,2024-04-21T00:00:00+00:00,Imperial,SAW,1,2,3,Thunderpick,A,SAW
+sample-0155,2024-04-21T08:00:00+00:00,3DMAX,Complexity,1,0,1,CCT,A,3DMAX
+sample-0156,2024-04-21T22:00:00+00:00,Imperial,FURIA,1,2,3,CCT,A,FURIA
+sample-0157,2024-04-22T04:00:00+00:00,B8,The MongolZ,1,2,3,ESL Pro League,S,The MongolZ
+sample-0158,2024-04-22T14:00:00+00:00,Legacy,Rare Atom,0,1,1,IEM,S,Rare Atom
+sample-0159,2024-04-22T18:00:00+00:00,Complexity,FaZe,1,3,5,BLAST Premier,S,FaZe
+sample-0160,2024-04-23T06:00:00+00:00,Rare Atom,Team Liquid,2,3,5,CCT,A,Team Liquid
+sample-0161,2024-04-23T14:00:00+00:00,FURIA,paiN,2,1,3,Thunderpick,A,FURIA
+sample-0162,2024-04-23T17:00:00+00:00,3DMAX,Astralis,0,2,3,RES Regional,B,Astralis
+sample-0163,2024-04-24T05:00:00+00:00,BIG,Astralis,2,0,3,IEM,S,BIG
+sample-0164,2024-04-24T14:00:00+00:00,B8,Wildcard,1,2,3,RES Regional,B,Wildcard
+sample-0165,2024-04-24T20:00:00+00:00,Imperial,FURIA,0,1,1,ESL Pro League,S,FURIA
+sample-0166,2024-04-25T03:00:00+00:00,BIG,FaZe,0,2,3,Thunderpick,A,FaZe
+sample-0167,2024-04-25T14:00:00+00:00,Team Spirit,Rare Atom,2,0,3,CCT,A,Team Spirit
+sample-0168,2024-04-25T22:00:00+00:00,Aurora,FaZe,0,2,3,IEM,S,FaZe
+sample-0169,2024-04-26T00:00:00+00:00,M80,3DMAX,2,1,3,Thunderpick,A,M80
+sample-0170,2024-04-26T08:00:00+00:00,SAW,MOUZ,0,2,3,RES Regional,B,MOUZ
+sample-0171,2024-04-26T17:00:00+00:00,Complexity,Falcons,0,1,1,CCT,A,Falcons
+sample-0172,2024-04-27T06:00:00+00:00,Wildcard,Team Liquid,0,1,1,IEM,S,Team Liquid
+sample-0173,2024-04-27T12:00:00+00:00,Vitality,Team Liquid,2,0,3,ESL Pro League,S,Vitality
+sample-0174,2024-04-27T16:00:00+00:00,Complexity,BIG,0,2,3,ESL Pro League,S,BIG
+sample-0175,2024-04-28T01:00:00+00:00,SAW,Astralis,1,2,3,Thunderpick,A,Astralis
+sample-0176,2024-04-28T08:00:00+00:00,The MongolZ,paiN,2,1,3,RES Regional,B,The MongolZ
+sample-0177,2024-04-28T18:00:00+00:00,paiN,Team Liquid,0,2,3,CCT,A,Team Liquid
+sample-0178,2024-04-29T06:00:00+00:00,BIG,Team Liquid,1,2,3,CCT,A,Team Liquid
+sample-0179,2024-04-29T11:00:00+00:00,Team Liquid,G2,0,2,3,ESL Pro League,S,G2
+sample-0180,2024-04-29T19:00:00+00:00,BIG,Heroic,0,2,3,RES Regional,B,Heroic
+sample-0181,2024-04-30T05:00:00+00:00,Aurora,Team Spirit,0,1,1,Thunderpick,A,Team Spirit
+sample-0182,2024-04-30T13:00:00+00:00,B8,Team Liquid,1,2,3,ESL Pro League,S,Team Liquid
+sample-0183,2024-04-30T21:00:00+00:00,G2,SAW,2,0,3,RES Regional,B,G2
+sample-0184,2024-05-01T02:00:00+00:00,Vitality,Team Liquid,0,1,1,Thunderpick,A,Team Liquid
+sample-0185,2024-05-01T11:00:00+00:00,Rare Atom,FURIA,2,1,3,RES Regional,B,Rare Atom
+sample-0186,2024-05-01T20:00:00+00:00,Natus Vincere,G2,3,1,5,Thunderpick,A,Natus Vincere
+sample-0187,2024-05-02T06:00:00+00:00,Aurora,Natus Vincere,2,1,3,RES Regional,B,Aurora
+sample-0188,2024-05-02T14:00:00+00:00,FaZe,Falcons,0,1,1,ESL Pro League,S,Falcons
+sample-0189,2024-05-02T22:00:00+00:00,The MongolZ,M80,2,1,3,BLAST Premier,S,The MongolZ
+sample-0190,2024-05-03T02:00:00+00:00,Astralis,Team Spirit,0,1,1,CCT,A,Team Spirit
+sample-0191,2024-05-03T10:00:00+00:00,M80,Rare Atom,1,3,5,RES Regional,B,Rare Atom
+sample-0192,2024-05-03T20:00:00+00:00,Falcons,M80,1,0,1,Thunderpick,A,Falcons
+sample-0193,2024-05-04T06:00:00+00:00,FaZe,SAW,1,0,1,RES Regional,B,FaZe
+sample-0194,2024-05-04T08:00:00+00:00,paiN,Wildcard,2,0,3,ESL Pro League,S,paiN
+sample-0195,2024-05-04T17:00:00+00:00,Vitality,Team Liquid,0,1,1,BLAST Premier,S,Team Liquid
+sample-0196,2024-05-05T05:00:00+00:00,3DMAX,FURIA,1,2,3,Thunderpick,A,FURIA
+sample-0197,2024-05-05T12:00:00+00:00,Rare Atom,FURIA,0,1,1,CCT,A,FURIA
+sample-0198,2024-05-05T19:00:00+00:00,Complexity,Aurora,2,0,3,CCT,A,Complexity
+sample-0199,2024-05-06T03:00:00+00:00,The MongolZ,Heroic,2,1,3,BLAST Premier,S,The MongolZ
+sample-0200,2024-05-06T09:00:00+00:00,Aurora,G2,0,2,3,RES Regional,B,G2
+sample-0201,2024-05-06T17:00:00+00:00,Imperial,SAW,0,1,1,IEM,S,SAW
+sample-0202,2024-05-07T01:00:00+00:00,FURIA,BIG,3,0,5,Thunderpick,A,FURIA
+sample-0203,2024-05-07T14:00:00+00:00,The MongolZ,FaZe,0,3,5,IEM,S,FaZe
+sample-0204,2024-05-07T22:00:00+00:00,FURIA,3DMAX,2,0,3,RES Regional,B,FURIA
+sample-0205,2024-05-08T01:00:00+00:00,Team Spirit,FURIA,2,1,3,BLAST Premier,S,Team Spirit
+sample-0206,2024-05-08T08:00:00+00:00,Aurora,Vitality,2,0,3,RES Regional,B,Aurora
+sample-0207,2024-05-08T19:00:00+00:00,B8,paiN,2,3,5,BLAST Premier,S,paiN
+sample-0208,2024-05-09T06:00:00+00:00,Legacy,The MongolZ,0,1,1,RES Regional,B,The MongolZ
+sample-0209,2024-05-09T11:00:00+00:00,M80,Legacy,1,0,1,BLAST Premier,S,M80
+sample-0210,2024-05-09T16:00:00+00:00,Astralis,Complexity,1,2,3,BLAST Premier,S,Complexity
+sample-0211,2024-05-10T05:00:00+00:00,FaZe,SAW,2,1,3,Thunderpick,A,FaZe
+sample-0212,2024-05-10T12:00:00+00:00,BIG,3DMAX,1,2,3,CCT,A,3DMAX
+sample-0213,2024-05-10T21:00:00+00:00,SAW,Complexity,1,0,1,RES Regional,B,SAW
+sample-0214,2024-05-11T03:00:00+00:00,3DMAX,Rare Atom,1,2,3,ESL Pro League,S,Rare Atom
+sample-0215,2024-05-11T11:00:00+00:00,FaZe,paiN,1,0,1,IEM,S,FaZe
+sample-0216,2024-05-11T16:00:00+00:00,FaZe,M80,2,1,3,BLAST Premier,S,FaZe
+sample-0217,2024-05-12T00:00:00+00:00,MOUZ,Complexity,2,0,3,Thunderpick,A,MOUZ
+sample-0218,2024-05-12T10:00:00+00:00,BIG,3DMAX,0,1,1,CCT,A,3DMAX
+sample-0219,2024-05-12T20:00:00+00:00,M80,Complexity,0,1,1,IEM,S,Complexity
+sample-0220,2024-05-13T05:00:00+00:00,Team Liquid,Heroic,3,0,5,ESL Pro League,S,Team Liquid
+sample-0221,2024-05-13T14:00:00+00:00,B8,The MongolZ,1,2,3,BLAST Premier,S,The MongolZ
+sample-0222,2024-05-13T21:00:00+00:00,Aurora,BIG,2,0,3,Thunderpick,A,Aurora
+sample-0223,2024-05-14T02:00:00+00:00,Wildcard,Aurora,2,1,3,IEM,S,Wildcard
+sample-0224,2024-05-14T08:00:00+00:00,Team Spirit,Natus Vincere,2,3,5,CCT,A,Natus Vincere
+sample-0225,2024-05-14T21:00:00+00:00,FURIA,Rare Atom,1,0,1,BLAST Premier,S,FURIA
+sample-0226,2024-05-15T02:00:00+00:00,Legacy,G2,1,2,3,ESL Pro League,S,G2
+sample-0227,2024-05-15T08:00:00+00:00,Team Liquid,Rare Atom,3,2,5,BLAST Premier,S,Team Liquid
+sample-0228,2024-05-15T16:00:00+00:00,FURIA,Natus Vincere,0,1,1,RES Regional,B,Natus Vincere
+sample-0229,2024-05-16T02:00:00+00:00,Aurora,paiN,2,1,3,CCT,A,Aurora
+sample-0230,2024-05-16T13:00:00+00:00,G2,Legacy,2,0,3,IEM,S,G2
+sample-0231,2024-05-16T19:00:00+00:00,M80,BIG,0,2,3,ESL Pro League,S,BIG
+sample-0232,2024-05-17T06:00:00+00:00,SAW,Vitality,2,0,3,ESL Pro League,S,SAW
+sample-0233,2024-05-17T13:00:00+00:00,Aurora,Team Liquid,1,0,1,CCT,A,Aurora
+sample-0234,2024-05-17T20:00:00+00:00,Complexity,Natus Vincere,3,2,5,ESL Pro League,S,Complexity
+sample-0235,2024-05-18T06:00:00+00:00,3DMAX,M80,0,1,1,CCT,A,M80
+sample-0236,2024-05-18T12:00:00+00:00,Rare Atom,Vitality,0,2,3,IEM,S,Vitality
+sample-0237,2024-05-18T19:00:00+00:00,Complexity,BIG,2,1,3,BLAST Premier,S,Complexity
+sample-0238,2024-05-19T02:00:00+00:00,Team Spirit,FaZe,3,1,5,RES Regional,B,Team Spirit
+sample-0239,2024-05-19T11:00:00+00:00,MOUZ,Complexity,1,2,3,Thunderpick,A,Complexity
+sample-0240,2024-05-19T18:00:00+00:00,Legacy,MOUZ,1,2,3,ESL Pro League,S,MOUZ
+sample-0241,2024-05-20T04:00:00+00:00,Natus Vincere,MOUZ,0,1,1,Thunderpick,A,MOUZ
+sample-0242,2024-05-20T09:00:00+00:00,G2,Heroic,2,0,3,BLAST Premier,S,G2
+sample-0243,2024-05-20T22:00:00+00:00,Aurora,G2,2,0,3,ESL Pro League,S,Aurora
+sample-0244,2024-05-21T05:00:00+00:00,Imperial,B8,2,3,5,CCT,A,B8
+sample-0245,2024-05-21T10:00:00+00:00,BIG,Imperial,1,3,5,RES Regional,B,Imperial
+sample-0246,2024-05-21T20:00:00+00:00,FURIA,paiN,2,1,3,IEM,S,FURIA
+sample-0247,2024-05-22T00:00:00+00:00,Vitality,Heroic,2,1,3,CCT,A,Vitality
+sample-0248,2024-05-22T14:00:00+00:00,Vitality,Heroic,0,1,1,RES Regional,B,Heroic
+sample-0249,2024-05-22T20:00:00+00:00,MOUZ,SAW,2,1,3,Thunderpick,A,MOUZ
+sample-0250,2024-05-23T02:00:00+00:00,Rare Atom,Vitality,2,3,5,ESL Pro League,S,Vitality
+sample-0251,2024-05-23T08:00:00+00:00,SAW,B8,0,1,1,CCT,A,B8
+sample-0252,2024-05-23T21:00:00+00:00,FaZe,Wildcard,2,0,3,ESL Pro League,S,FaZe
+sample-0253,2024-05-24T02:00:00+00:00,paiN,Legacy,2,1,3,IEM,S,paiN
+sample-0254,2024-05-24T13:00:00+00:00,Astralis,Complexity,0,3,5,RES Regional,B,Complexity
+sample-0255,2024-05-24T18:00:00+00:00,FaZe,MOUZ,2,3,5,CCT,A,MOUZ
+sample-0256,2024-05-25T00:00:00+00:00,Aurora,Rare Atom,0,3,5,IEM,S,Rare Atom
+sample-0257,2024-05-25T13:00:00+00:00,BIG,M80,2,1,3,RES Regional,B,BIG
+sample-0258,2024-05-25T20:00:00+00:00,M80,Astralis,1,0,1,IEM,S,M80
+sample-0259,2024-05-26T05:00:00+00:00,Astralis,Imperial,0,2,3,RES Regional,B,Imperial
+sample-0260,2024-05-26T09:00:00+00:00,Complexity,Legacy,2,1,3,ESL Pro League,S,Complexity
+sample-0261,2024-05-26T18:00:00+00:00,FaZe,B8,2,0,3,BLAST Premier,S,FaZe
+sample-0262,2024-05-27T02:00:00+00:00,Falcons,Legacy,3,0,5,RES Regional,B,Falcons
+sample-0263,2024-05-27T14:00:00+00:00,SAW,FURIA,0,2,3,ESL Pro League,S,FURIA
+sample-0264,2024-05-27T19:00:00+00:00,Wildcard,SAW,1,2,3,BLAST Premier,S,SAW
+sample-0265,2024-05-28T06:00:00+00:00,Heroic,M80,1,2,3,RES Regional,B,M80
+sample-0266,2024-05-28T10:00:00+00:00,paiN,The MongolZ,1,2,3,ESL Pro League,S,The MongolZ
+sample-0267,2024-05-28T20:00:00+00:00,M80,BIG,1,2,3,CCT,A,BIG
+sample-0268,2024-05-29T00:00:00+00:00,Legacy,Complexity,0,2,3,IEM,S,Complexity
+sample-0269,2024-05-29T14:00:00+00:00,Imperial,B8,0,3,5,RES Regional,B,B8
+sample-0270,2024-05-29T20:00:00+00:00,Legacy,Falcons,1,2,3,CCT,A,Falcons
+sample-0271,2024-05-30T00:00:00+00:00,FURIA,Complexity,2,1,3,IEM,S,FURIA
+sample-0272,2024-05-30T08:00:00+00:00,Complexity,Vitality,0,2,3,CCT,A,Vitality
+sample-0273,2024-05-30T21:00:00+00:00,Heroic,The MongolZ,1,0,1,RES Regional,B,Heroic
+sample-0274,2024-05-31T06:00:00+00:00,FaZe,FURIA,2,1,3,RES Regional,B,FaZe
+sample-0275,2024-05-31T08:00:00+00:00,FURIA,Wildcard,3,0,5,BLAST Premier,S,FURIA
+sample-0276,2024-05-31T20:00:00+00:00,Aurora,G2,2,3,5,Thunderpick,A,G2
+sample-0277,2024-06-01T00:00:00+00:00,Complexity,Falcons,1,2,3,BLAST Premier,S,Falcons
+sample-0278,2024-06-01T08:00:00+00:00,The MongolZ,Complexity,3,1,5,BLAST Premier,S,The MongolZ
+sample-0279,2024-06-01T21:00:00+00:00,B8,SAW,3,2,5,ESL Pro League,S,B8
+sample-0280,2024-06-02T04:00:00+00:00,FURIA,Team Liquid,3,1,5,ESL Pro League,S,FURIA
+sample-0281,2024-06-02T10:00:00+00:00,Complexity,Natus Vincere,0,1,1,Thunderpick,A,Natus Vincere
+sample-0282,2024-06-02T19:00:00+00:00,MOUZ,Legacy,3,2,5,BLAST Premier,S,MOUZ
+sample-0283,2024-06-03T00:00:00+00:00,B8,Vitality,1,2,3,RES Regional,B,Vitality
+sample-0284,2024-06-03T13:00:00+00:00,Heroic,MOUZ,0,1,1,Thunderpick,A,MOUZ
+sample-0285,2024-06-03T17:00:00+00:00,FaZe,FURIA,3,1,5,RES Regional,B,FaZe
+sample-0286,2024-06-04T00:00:00+00:00,M80,paiN,0,2,3,ESL Pro League,S,paiN
+sample-0287,2024-06-04T08:00:00+00:00,Wildcard,paiN,2,0,3,ESL Pro League,S,Wildcard
+sample-0288,2024-06-04T16:00:00+00:00,FaZe,Team Liquid,1,3,5,IEM,S,Team Liquid
+sample-0289,2024-06-05T02:00:00+00:00,Imperial,G2,0,1,1,RES Regional,B,G2
+sample-0290,2024-06-05T11:00:00+00:00,Aurora,Falcons,1,2,3,RES Regional,B,Falcons
+sample-0291,2024-06-05T22:00:00+00:00,Astralis,FaZe,1,2,3,IEM,S,FaZe
+sample-0292,2024-06-06T04:00:00+00:00,Legacy,Aurora,0,2,3,CCT,A,Aurora
+sample-0293,2024-06-06T10:00:00+00:00,Natus Vincere,3DMAX,1,0,1,BLAST Premier,S,Natus Vincere
+sample-0294,2024-06-06T17:00:00+00:00,M80,Team Liquid,2,3,5,CCT,A,Team Liquid
+sample-0295,2024-06-07T06:00:00+00:00,Wildcard,paiN,0,1,1,RES Regional,B,paiN
+sample-0296,2024-06-07T13:00:00+00:00,Heroic,SAW,0,2,3,BLAST Premier,S,SAW
+sample-0297,2024-06-07T22:00:00+00:00,Imperial,Astralis,0,2,3,ESL Pro League,S,Astralis
+sample-0298,2024-06-08T00:00:00+00:00,SAW,M80,0,1,1,ESL Pro League,S,M80
+sample-0299,2024-06-08T09:00:00+00:00,The MongolZ,Imperial,2,0,3,Thunderpick,A,The MongolZ
+sample-0300,2024-06-08T20:00:00+00:00,M80,paiN,1,2,3,BLAST Premier,S,paiN
+sample-0301,2024-06-09T00:00:00+00:00,FURIA,Legacy,2,1,3,ESL Pro League,S,FURIA
+sample-0302,2024-06-09T08:00:00+00:00,Team Spirit,Rare Atom,3,1,5,Thunderpick,A,Team Spirit
+sample-0303,2024-06-09T19:00:00+00:00,Aurora,Wildcard,3,1,5,RES Regional,B,Aurora
+sample-0304,2024-06-10T01:00:00+00:00,G2,Falcons,1,0,1,CCT,A,G2
+sample-0305,2024-06-10T08:00:00+00:00,Wildcard,paiN,1,2,3,RES Regional,B,paiN
+sample-0306,2024-06-10T20:00:00+00:00,3DMAX,Team Liquid,0,2,3,IEM,S,Team Liquid
+sample-0307,2024-06-11T00:00:00+00:00,The MongolZ,Falcons,0,2,3,CCT,A,Falcons
+sample-0308,2024-06-11T08:00:00+00:00,Heroic,3DMAX,2,0,3,Thunderpick,A,Heroic
+sample-0309,2024-06-11T22:00:00+00:00,MOUZ,Team Liquid,2,1,3,CCT,A,MOUZ
+sample-0310,2024-06-12T03:00:00+00:00,BIG,MOUZ,2,0,3,CCT,A,BIG
+sample-0311,2024-06-12T09:00:00+00:00,M80,Legacy,3,2,5,Thunderpick,A,M80
+sample-0312,2024-06-12T20:00:00+00:00,FURIA,Complexity,1,0,1,BLAST Premier,S,FURIA
+sample-0313,2024-06-13T04:00:00+00:00,FURIA,Team Liquid,2,0,3,IEM,S,FURIA
+sample-0314,2024-06-13T13:00:00+00:00,Team Liquid,MOUZ,3,1,5,ESL Pro League,S,Team Liquid
+sample-0315,2024-06-13T20:00:00+00:00,Team Liquid,SAW,3,2,5,ESL Pro League,S,Team Liquid
+sample-0316,2024-06-14T02:00:00+00:00,BIG,FURIA,3,2,5,Thunderpick,A,BIG
+sample-0317,2024-06-14T08:00:00+00:00,BIG,Vitality,0,1,1,BLAST Premier,S,Vitality
+sample-0318,2024-06-14T21:00:00+00:00,Imperial,BIG,2,1,3,Thunderpick,A,Imperial
+sample-0319,2024-06-15T02:00:00+00:00,Team Spirit,B8,1,3,5,RES Regional,B,B8
+sample-0320,2024-06-15T08:00:00+00:00,B8,The MongolZ,1,2,3,CCT,A,The MongolZ
+sample-0321,2024-06-15T17:00:00+00:00,Wildcard,Vitality,1,2,3,CCT,A,Vitality
+sample-0322,2024-06-16T01:00:00+00:00,FaZe,SAW,2,1,3,CCT,A,FaZe
+sample-0323,2024-06-16T08:00:00+00:00,Heroic,Legacy,2,0,3,CCT,A,Heroic
+sample-0324,2024-06-16T18:00:00+00:00,Aurora,paiN,1,0,1,BLAST Premier,S,Aurora
+sample-0325,2024-06-17T05:00:00+00:00,Astralis,SAW,2,1,3,Thunderpick,A,Astralis
+sample-0326,2024-06-17T10:00:00+00:00,FaZe,G2,1,2,3,CCT,A,G2
+sample-0327,2024-06-17T17:00:00+00:00,B8,Team Spirit,2,1,3,ESL Pro League,S,B8
+sample-0328,2024-06-18T06:00:00+00:00,BIG,Heroic,2,1,3,Thunderpick,A,BIG
+sample-0329,2024-06-18T11:00:00+00:00,Imperial,M80,3,0,5,BLAST Premier,S,Imperial
+sample-0330,2024-06-18T19:00:00+00:00,FURIA,Aurora,1,2,3,BLAST Premier,S,Aurora
+sample-0331,2024-06-19T03:00:00+00:00,Vitality,BIG,2,1,3,BLAST Premier,S,Vitality
+sample-0332,2024-06-19T08:00:00+00:00,Legacy,paiN,0,2,3,ESL Pro League,S,paiN
+sample-0333,2024-06-19T17:00:00+00:00,Astralis,Heroic,1,2,3,ESL Pro League,S,Heroic
+sample-0334,2024-06-20T00:00:00+00:00,SAW,Legacy,1,0,1,BLAST Premier,S,SAW
+sample-0335,2024-06-20T12:00:00+00:00,FURIA,Wildcard,2,1,3,ESL Pro League,S,FURIA
+sample-0336,2024-06-20T19:00:00+00:00,Legacy,FURIA,1,3,5,ESL Pro League,S,FURIA
+sample-0337,2024-06-21T06:00:00+00:00,SAW,Rare Atom,1,3,5,Thunderpick,A,Rare Atom
+sample-0338,2024-06-21T14:00:00+00:00,Legacy,3DMAX,3,1,5,CCT,A,Legacy
+sample-0339,2024-06-21T20:00:00+00:00,Team Spirit,Heroic,1,0,1,CCT,A,Team Spirit
+sample-0340,2024-06-22T03:00:00+00:00,Team Liquid,Rare Atom,0,1,1,Thunderpick,A,Rare Atom
+sample-0341,2024-06-22T13:00:00+00:00,Aurora,Imperial,2,3,5,ESL Pro League,S,Imperial
+sample-0342,2024-06-22T20:00:00+00:00,Vitality,BIG,3,2,5,RES Regional,B,Vitality
+sample-0343,2024-06-23T05:00:00+00:00,Astralis,FURIA,0,2,3,Thunderpick,A,FURIA
+sample-0344,2024-06-23T11:00:00+00:00,Falcons,G2,2,1,3,ESL Pro League,S,Falcons
+sample-0345,2024-06-23T21:00:00+00:00,Wildcard,G2,1,3,5,RES Regional,B,G2
+sample-0346,2024-06-24T03:00:00+00:00,Vitality,Wildcard,2,1,3,RES Regional,B,Vitality
+sample-0347,2024-06-24T10:00:00+00:00,Legacy,Astralis,2,1,3,Thunderpick,A,Legacy
+sample-0348,2024-06-24T17:00:00+00:00,3DMAX,Heroic,1,2,3,ESL Pro League,S,Heroic
+sample-0349,2024-06-25T01:00:00+00:00,Aurora,3DMAX,2,1,3,RES Regional,B,Aurora
+sample-0350,2024-06-25T08:00:00+00:00,Wildcard,B8,2,1,3,IEM,S,Wildcard
+sample-0351,2024-06-25T18:00:00+00:00,BIG,M80,2,1,3,ESL Pro League,S,BIG
+sample-0352,2024-06-26T03:00:00+00:00,Vitality,Team Liquid,0,1,1,IEM,S,Team Liquid
+sample-0353,2024-06-26T10:00:00+00:00,Imperial,Aurora,0,2,3,Thunderpick,A,Aurora
+sample-0354,2024-06-26T21:00:00+00:00,3DMAX,Wildcard,1,0,1,Thunderpick,A,3DMAX
+sample-0355,2024-06-27T01:00:00+00:00,BIG,The MongolZ,0,3,5,RES Regional,B,The MongolZ
+sample-0356,2024-06-27T14:00:00+00:00,Vitality,Falcons,2,0,3,RES Regional,B,Vitality
+sample-0357,2024-06-27T19:00:00+00:00,FURIA,Team Spirit,1,2,3,RES Regional,B,Team Spirit
+sample-0358,2024-06-28T05:00:00+00:00,B8,Imperial,2,1,3,IEM,S,B8
+sample-0359,2024-06-28T11:00:00+00:00,Vitality,MOUZ,0,2,3,ESL Pro League,S,MOUZ
+sample-0360,2024-06-28T21:00:00+00:00,Natus Vincere,Vitality,1,2,3,ESL Pro League,S,Vitality
+sample-0361,2024-06-29T02:00:00+00:00,Team Liquid,Vitality,3,2,5,BLAST Premier,S,Team Liquid
+sample-0362,2024-06-29T09:00:00+00:00,Team Liquid,paiN,2,3,5,CCT,A,paiN
+sample-0363,2024-06-29T17:00:00+00:00,Legacy,paiN,1,0,1,IEM,S,Legacy
+sample-0364,2024-06-30T02:00:00+00:00,Rare Atom,paiN,0,2,3,RES Regional,B,paiN
+sample-0365,2024-06-30T14:00:00+00:00,Team Liquid,BIG,2,0,3,Thunderpick,A,Team Liquid
+sample-0366,2024-06-30T19:00:00+00:00,Imperial,Astralis,1,3,5,BLAST Premier,S,Astralis
+sample-0367,2024-07-01T01:00:00+00:00,M80,Falcons,1,2,3,IEM,S,Falcons
+sample-0368,2024-07-01T10:00:00+00:00,Team Spirit,Aurora,2,1,3,IEM,S,Team Spirit
+sample-0369,2024-07-01T17:00:00+00:00,BIG,Rare Atom,2,1,3,RES Regional,B,BIG
+sample-0370,2024-07-02T05:00:00+00:00,Vitality,M80,2,0,3,CCT,A,Vitality
+sample-0371,2024-07-02T10:00:00+00:00,Legacy,Wildcard,0,1,1,RES Regional,B,Wildcard
+sample-0372,2024-07-02T19:00:00+00:00,Heroic,SAW,2,1,3,ESL Pro League,S,Heroic
+sample-0373,2024-07-03T06:00:00+00:00,Rare Atom,SAW,3,1,5,Thunderpick,A,Rare Atom
+sample-0374,2024-07-03T11:00:00+00:00,M80,G2,0,3,5,Thunderpick,A,G2
+sample-0375,2024-07-03T22:00:00+00:00,Legacy,Wildcard,3,0,5,BLAST Premier,S,Legacy
+sample-0376,2024-07-04T02:00:00+00:00,3DMAX,Legacy,3,0,5,ESL Pro League,S,3DMAX
+sample-0377,2024-07-04T12:00:00+00:00,Legacy,paiN,2,1,3,BLAST Premier,S,Legacy
+sample-0378,2024-07-04T20:00:00+00:00,paiN,Vitality,1,3,5,CCT,A,Vitality
+sample-0379,2024-07-05T02:00:00+00:00,Vitality,3DMAX,2,0,3,CCT,A,Vitality
+sample-0380,2024-07-05T11:00:00+00:00,Team Spirit,Rare Atom,1,0,1,BLAST Premier,S,Team Spirit
+sample-0381,2024-07-05T19:00:00+00:00,Heroic,Wildcard,1,0,1,BLAST Premier,S,Heroic
+sample-0382,2024-07-06T03:00:00+00:00,Vitality,Team Liquid,2,1,3,IEM,S,Vitality
+sample-0383,2024-07-06T14:00:00+00:00,paiN,Astralis,3,0,5,RES Regional,B,paiN
+sample-0384,2024-07-06T17:00:00+00:00,Heroic,Falcons,3,1,5,Thunderpick,A,Heroic
+sample-0385,2024-07-07T03:00:00+00:00,Rare Atom,The MongolZ,0,1,1,IEM,S,The MongolZ
+sample-0386,2024-07-07T09:00:00+00:00,M80,Rare Atom,1,3,5,ESL Pro League,S,Rare Atom
+sample-0387,2024-07-07T22:00:00+00:00,paiN,Heroic,2,0,3,BLAST Premier,S,paiN
+sample-0388,2024-07-08T01:00:00+00:00,M80,Complexity,0,1,1,ESL Pro League,S,Complexity
+sample-0389,2024-07-08T13:00:00+00:00,MOUZ,Falcons,0,2,3,ESL Pro League,S,Falcons
+sample-0390,2024-07-08T17:00:00+00:00,Vitality,Astralis,3,0,5,BLAST Premier,S,Vitality
+sample-0391,2024-07-09T04:00:00+00:00,Legacy,Team Liquid,3,1,5,Thunderpick,A,Legacy
+sample-0392,2024-07-09T10:00:00+00:00,M80,FaZe,2,0,3,CCT,A,M80
+sample-0393,2024-07-09T21:00:00+00:00,Aurora,Vitality,2,3,5,ESL Pro League,S,Vitality
+sample-0394,2024-07-10T05:00:00+00:00,M80,Complexity,0,1,1,IEM,S,Complexity
+sample-0395,2024-07-10T09:00:00+00:00,M80,Astralis,1,2,3,CCT,A,Astralis
+sample-0396,2024-07-10T22:00:00+00:00,Team Liquid,Astralis,3,1,5,ESL Pro League,S,Team Liquid
+sample-0397,2024-07-11T04:00:00+00:00,The MongolZ,Team Liquid,1,2,3,BLAST Premier,S,Team Liquid
+sample-0398,2024-07-11T09:00:00+00:00,Complexity,3DMAX,2,0,3,IEM,S,Complexity
+sample-0399,2024-07-11T20:00:00+00:00,FaZe,Imperial,2,1,3,BLAST Premier,S,FaZe
+sample-0400,2024-07-12T01:00:00+00:00,Rare Atom,G2,2,0,3,BLAST Premier,S,Rare Atom
+sample-0401,2024-07-12T14:00:00+00:00,BIG,Rare Atom,1,2,3,ESL Pro League,S,Rare Atom
+sample-0402,2024-07-12T17:00:00+00:00,FaZe,Team Liquid,0,1,1,ESL Pro League,S,Team Liquid
+sample-0403,2024-07-13T04:00:00+00:00,Rare Atom,Falcons,0,2,3,RES Regional,B,Falcons
+sample-0404,2024-07-13T11:00:00+00:00,Wildcard,G2,1,2,3,IEM,S,G2
+sample-0405,2024-07-13T20:00:00+00:00,paiN,3DMAX,1,2,3,IEM,S,3DMAX
+sample-0406,2024-07-14T02:00:00+00:00,B8,paiN,2,1,3,ESL Pro League,S,B8
+sample-0407,2024-07-14T10:00:00+00:00,FaZe,Complexity,2,0,3,BLAST Premier,S,FaZe
+sample-0408,2024-07-14T17:00:00+00:00,3DMAX,BIG,1,2,3,ESL Pro League,S,BIG
+sample-0409,2024-07-15T05:00:00+00:00,FaZe,The MongolZ,2,1,3,Thunderpick,A,FaZe
+sample-0410,2024-07-15T09:00:00+00:00,M80,FaZe,1,2,3,CCT,A,FaZe
+sample-0411,2024-07-15T20:00:00+00:00,Rare Atom,Heroic,3,1,5,ESL Pro League,S,Rare Atom
+sample-0412,2024-07-16T00:00:00+00:00,Imperial,Vitality,0,1,1,RES Regional,B,Vitality
+sample-0413,2024-07-16T09:00:00+00:00,Team Spirit,Complexity,2,0,3,RES Regional,B,Team Spirit
+sample-0414,2024-07-16T21:00:00+00:00,Team Spirit,G2,2,0,3,Thunderpick,A,Team Spirit
+sample-0415,2024-07-17T04:00:00+00:00,M80,SAW,0,2,3,BLAST Premier,S,SAW
+sample-0416,2024-07-17T12:00:00+00:00,3DMAX,Complexity,3,2,5,IEM,S,3DMAX
+sample-0417,2024-07-17T16:00:00+00:00,Team Liquid,Team Spirit,0,2,3,BLAST Premier,S,Team Spirit
+sample-0418,2024-07-18T06:00:00+00:00,Legacy,FURIA,2,3,5,IEM,S,FURIA
+sample-0419,2024-07-18T11:00:00+00:00,Heroic,Aurora,0,1,1,IEM,S,Aurora
+sample-0420,2024-07-18T22:00:00+00:00,paiN,BIG,2,1,3,RES Regional,B,paiN
+sample-0421,2024-07-19T03:00:00+00:00,MOUZ,Imperial,0,1,1,BLAST Premier,S,Imperial
+sample-0422,2024-07-19T09:00:00+00:00,Astralis,3DMAX,1,0,1,RES Regional,B,Astralis
+sample-0423,2024-07-19T16:00:00+00:00,MOUZ,B8,0,2,3,Thunderpick,A,B8
+sample-0424,2024-07-20T00:00:00+00:00,The MongolZ,G2,1,3,5,IEM,S,G2
+sample-0425,2024-07-20T08:00:00+00:00,MOUZ,M80,2,3,5,RES Regional,B,M80
+sample-0426,2024-07-20T22:00:00+00:00,Natus Vincere,FaZe,2,0,3,RES Regional,B,Natus Vincere
+sample-0427,2024-07-21T06:00:00+00:00,Astralis,MOUZ,0,3,5,Thunderpick,A,MOUZ
+sample-0428,2024-07-21T09:00:00+00:00,Astralis,M80,1,2,3,RES Regional,B,M80
+sample-0429,2024-07-21T19:00:00+00:00,Wildcard,Rare Atom,2,0,3,BLAST Premier,S,Wildcard
+sample-0430,2024-07-22T06:00:00+00:00,The MongolZ,MOUZ,3,2,5,CCT,A,The MongolZ
+sample-0431,2024-07-22T10:00:00+00:00,FaZe,Team Spirit,1,2,3,ESL Pro League,S,Team Spirit
+sample-0432,2024-07-22T16:00:00+00:00,3DMAX,Astralis,2,3,5,CCT,A,Astralis
+sample-0433,2024-07-23T02:00:00+00:00,SAW,Team Liquid,0,1,1,BLAST Premier,S,Team Liquid
+sample-0434,2024-07-23T10:00:00+00:00,FURIA,Astralis,1,2,3,IEM,S,Astralis
+sample-0435,2024-07-23T22:00:00+00:00,Falcons,MOUZ,2,1,3,IEM,S,Falcons
+sample-0436,2024-07-24T04:00:00+00:00,Aurora,Falcons,2,1,3,CCT,A,Aurora
+sample-0437,2024-07-24T10:00:00+00:00,3DMAX,Legacy,1,0,1,BLAST Premier,S,3DMAX
+sample-0438,2024-07-24T18:00:00+00:00,3DMAX,MOUZ,1,2,3,BLAST Premier,S,MOUZ
+sample-0439,2024-07-25T04:00:00+00:00,Complexity,Astralis,0,3,5,Thunderpick,A,Astralis
+sample-0440,2024-07-25T10:00:00+00:00,Natus Vincere,M80,2,1,3,IEM,S,Natus Vincere
+sample-0441,2024-07-25T18:00:00+00:00,B8,FURIA,2,1,3,CCT,A,B8
+sample-0442,2024-07-26T04:00:00+00:00,B8,MOUZ,1,2,3,Thunderpick,A,MOUZ
+sample-0443,2024-07-26T10:00:00+00:00,G2,paiN,2,0,3,CCT,A,G2
+sample-0444,2024-07-26T19:00:00+00:00,SAW,Astralis,1,2,3,IEM,S,Astralis
+sample-0445,2024-07-27T02:00:00+00:00,Imperial,SAW,2,0,3,CCT,A,Imperial
+sample-0446,2024-07-27T14:00:00+00:00,Natus Vincere,Astralis,1,2,3,Thunderpick,A,Astralis
+sample-0447,2024-07-27T20:00:00+00:00,The MongolZ,FaZe,2,1,3,BLAST Premier,S,The MongolZ
+sample-0448,2024-07-28T03:00:00+00:00,G2,BIG,0,2,3,RES Regional,B,BIG
+sample-0449,2024-07-28T13:00:00+00:00,Wildcard,G2,0,2,3,CCT,A,G2
+sample-0450,2024-07-28T17:00:00+00:00,B8,FURIA,1,2,3,RES Regional,B,FURIA
+sample-0451,2024-07-29T04:00:00+00:00,Wildcard,Complexity,0,1,1,CCT,A,Complexity
+sample-0452,2024-07-29T12:00:00+00:00,B8,BIG,3,2,5,CCT,A,B8
+sample-0453,2024-07-29T16:00:00+00:00,Vitality,Heroic,3,2,5,RES Regional,B,Vitality
+sample-0454,2024-07-30T04:00:00+00:00,Falcons,The MongolZ,0,2,3,RES Regional,B,The MongolZ
+sample-0455,2024-07-30T08:00:00+00:00,Vitality,BIG,1,2,3,CCT,A,BIG
+sample-0456,2024-07-30T20:00:00+00:00,Team Spirit,Falcons,3,2,5,Thunderpick,A,Team Spirit
+sample-0457,2024-07-31T03:00:00+00:00,BIG,Wildcard,1,2,3,CCT,A,Wildcard
+sample-0458,2024-07-31T11:00:00+00:00,M80,BIG,1,2,3,BLAST Premier,S,BIG
+sample-0459,2024-07-31T22:00:00+00:00,Falcons,Team Liquid,1,0,1,BLAST Premier,S,Falcons
+sample-0460,2024-08-01T04:00:00+00:00,Rare Atom,FURIA,1,2,3,ESL Pro League,S,FURIA
+sample-0461,2024-08-01T08:00:00+00:00,B8,Heroic,1,2,3,IEM,S,Heroic
+sample-0462,2024-08-01T22:00:00+00:00,Team Liquid,Vitality,0,1,1,BLAST Premier,S,Vitality
+sample-0463,2024-08-02T01:00:00+00:00,FaZe,Imperial,2,0,3,Thunderpick,A,FaZe
+sample-0464,2024-08-02T14:00:00+00:00,3DMAX,Natus Vincere,1,2,3,ESL Pro League,S,Natus Vincere
+sample-0465,2024-08-02T21:00:00+00:00,Astralis,Imperial,2,1,3,BLAST Premier,S,Astralis
+sample-0466,2024-08-03T05:00:00+00:00,SAW,G2,1,2,3,BLAST Premier,S,G2
+sample-0467,2024-08-03T08:00:00+00:00,G2,Aurora,0,1,1,Thunderpick,A,Aurora
+sample-0468,2024-08-03T18:00:00+00:00,3DMAX,Natus Vincere,1,2,3,BLAST Premier,S,Natus Vincere
+sample-0469,2024-08-04T03:00:00+00:00,M80,B8,1,2,3,Thunderpick,A,B8
+sample-0470,2024-08-04T13:00:00+00:00,BIG,Falcons,0,2,3,RES Regional,B,Falcons
+sample-0471,2024-08-04T17:00:00+00:00,Team Liquid,SAW,2,1,3,BLAST Premier,S,Team Liquid
+sample-0472,2024-08-05T04:00:00+00:00,Team Liquid,Falcons,2,1,3,CCT,A,Team Liquid
+sample-0473,2024-08-05T12:00:00+00:00,FURIA,BIG,2,1,3,RES Regional,B,FURIA
+sample-0474,2024-08-05T18:00:00+00:00,Wildcard,Imperial,0,2,3,CCT,A,Imperial
+sample-0475,2024-08-06T00:00:00+00:00,FURIA,Natus Vincere,2,0,3,IEM,S,FURIA
+sample-0476,2024-08-06T13:00:00+00:00,B8,FURIA,2,1,3,CCT,A,B8
+sample-0477,2024-08-06T16:00:00+00:00,B8,Complexity,1,2,3,ESL Pro League,S,Complexity
+sample-0478,2024-08-07T02:00:00+00:00,BIG,Team Spirit,1,2,3,BLAST Premier,S,Team Spirit
+sample-0479,2024-08-07T12:00:00+00:00,The MongolZ,3DMAX,2,1,3,Thunderpick,A,The MongolZ
+sample-0480,2024-08-07T22:00:00+00:00,Falcons,BIG,3,1,5,Thunderpick,A,Falcons

@@ -1,0 +1,179 @@
+openapi: 3.0.3
+info:
+  title: Cyber Predict API
+  version: 0.1.0
+  description: |
+    Контракт недель 1–4. Gin только читает PostgreSQL.
+    Прогнозы пишет Python (`python -m ml train` / `python -m ml predict`).
+    Прогнозы учебные, не являются ставками.
+servers:
+  - url: http://localhost:18080
+paths:
+  /health:
+    get:
+      summary: Liveness + Postgres ping
+      responses:
+        "200":
+          description: OK
+        "503":
+          description: Database unreachable
+  /api/v1/matches/upcoming:
+    get:
+      summary: Предстоящие и идущие матчи с вложенным прогнозом, если он уже посчитан
+      parameters:
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            default: 50
+            maximum: 100
+      responses:
+        "200":
+          description: Список матчей
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Match"
+  /api/v1/matches/{id}:
+    get:
+      summary: Карточка матча
+      parameters:
+        - $ref: "#/components/parameters/ID"
+      responses:
+        "200":
+          description: Матч
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Match"
+        "404":
+          description: Не найден
+  /api/v1/predictions/{id}:
+    get:
+      summary: Прогноз по id матча
+      parameters:
+        - $ref: "#/components/parameters/ID"
+      responses:
+        "200":
+          description: Прогноз
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Prediction"
+        "404":
+          description: Прогноз ещё не посчитан
+  /api/v1/model/metrics:
+    get:
+      summary: Последние метрики обученной модели
+      responses:
+        "200":
+          description: Метрики
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/ModelMetrics"
+        "404":
+          description: Модель ещё не обучали
+components:
+  parameters:
+    ID:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: integer
+        format: int64
+  schemas:
+    Team:
+      type: object
+      required: [id, name]
+      properties:
+        id: { type: integer, format: int64 }
+        name: { type: string, example: Vitality }
+        slug: { type: string, nullable: true }
+        image_url: { type: string, nullable: true }
+    Score:
+      type: object
+      properties:
+        team1: { type: integer, nullable: true }
+        team2: { type: integer, nullable: true }
+    FeatureContribution:
+      type: object
+      properties:
+        name: { type: string, example: elo_diff }
+        value: { type: number, example: 42.5 }
+        impact: { type: string, example: favors_team1 }
+    Prediction:
+      type: object
+      required: [match_id, model_name, model_version, p_team1_win, p_team2_win]
+      properties:
+        match_id: { type: integer, format: int64 }
+        model_name: { type: string, example: elo_logreg }
+        model_version: { type: string, example: "0.1.0" }
+        p_team1_win: { type: number, minimum: 0, maximum: 1 }
+        p_team2_win: { type: number, minimum: 0, maximum: 1 }
+        confidence: { type: string, enum: [low, medium, high], nullable: true }
+        top_features:
+          type: array
+          items:
+            $ref: "#/components/schemas/FeatureContribution"
+        explanation: { type: string, nullable: true }
+        created_at: { type: string, format: date-time }
+    Match:
+      type: object
+      required: [id, source, status, team1, team2]
+      properties:
+        id: { type: integer, format: int64 }
+        external_id: { type: string, nullable: true }
+        source: { type: string, enum: [pandascore, dataset, fixture] }
+        status: { type: string, enum: [upcoming, running, finished] }
+        best_of: { type: integer, nullable: true }
+        scheduled_at: { type: string, format: date-time, nullable: true }
+        tournament: { type: string, nullable: true }
+        tournament_tier: { type: string, nullable: true }
+        team1: { $ref: "#/components/schemas/Team" }
+        team2: { $ref: "#/components/schemas/Team" }
+        score: { $ref: "#/components/schemas/Score" }
+        winner_team_id: { type: integer, format: int64, nullable: true }
+        prediction:
+          allOf:
+            - $ref: "#/components/schemas/Prediction"
+          nullable: true
+    ModelMetrics:
+      type: object
+      properties:
+        model_name: { type: string }
+        model_version: { type: string }
+        trained_at: { type: string, format: date-time }
+        n_train: { type: integer }
+        n_test: { type: integer }
+        accuracy: { type: number }
+        log_loss: { type: number }
+        brier: { type: number }
+        elo_favorite_accuracy: { type: number }
+        disclaimer: { type: string }
+        data_sources:
+          type: array
+          items: { type: string }
+    Error:
+      type: object
+      properties:
+        error:
+          type: object
+          properties:
+            code: { type: string }
+            message: { type: string }

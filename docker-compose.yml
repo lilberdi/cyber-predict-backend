@@ -1,0 +1,32 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: cyber
+      POSTGRES_PASSWORD: cyber
+      POSTGRES_DB: cyber_predict
+    ports:
+      - "55432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U cyber -d cyber_predict"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+
+  api:
+    build: .
+    ports:
+      - "${PORT:-18080}:${PORT:-18080}"
+    environment:
+      PORT: ${PORT:-18080}
+      DATABASE_URL: postgres://cyber:cyber@postgres:5432/cyber_predict?sslmode=disable
+      CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:3000}
+      MIGRATIONS_PATH: file://migrations
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+volumes:
+  pgdata:

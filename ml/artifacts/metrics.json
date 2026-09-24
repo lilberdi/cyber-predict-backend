@@ -1,0 +1,21 @@
+{
+  "model_name": "elo_logreg",
+  "model_version": "0.1.0",
+  "n_train": 384,
+  "n_test": 96,
+  "accuracy": 0.65625,
+  "log_loss": 0.6572121404205206,
+  "brier": 0.22963012834717075,
+  "elo_favorite_accuracy": 0.65625,
+  "artifact": "/Users/lilberdi/Documents/cyber-predict-backend/ml/artifacts/elo_logreg.joblib",
+  "extra": {
+    "features": [
+      "elo_diff",
+      "form5_diff",
+      "form10_diff",
+      "h2h_diff"
+    ],
+    "split": "chronological_80_20",
+    "leakage_guard": "features use only matches before played_at"
+  }
+}

@@ -1,0 +1,7 @@
+DROP TABLE IF EXISTS model_metrics;
+DROP TABLE IF EXISTS predictions;
+DROP TABLE IF EXISTS team_elo;
+DROP TABLE IF EXISTS match_rosters;
+DROP TABLE IF EXISTS matches;
+DROP TABLE IF EXISTS players;
+DROP TABLE IF EXISTS teams;

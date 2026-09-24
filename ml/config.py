@@ -1,0 +1,24 @@
+from __future__ import annotations
+
+import os
+from pathlib import Path
+
+from dotenv import load_dotenv
+
+load_dotenv()
+
+ROOT = Path(__file__).resolve().parents[1]
+
+DATABASE_URL = os.getenv(
+    "DATABASE_URL",
+    "postgres://cyber:cyber@localhost:55432/cyber_predict?sslmode=disable",
+)
+PANDASCORE_TOKEN = os.getenv("PANDASCORE_TOKEN", "").strip()
+PANDASCORE_BASE_URL = os.getenv("PANDASCORE_BASE_URL", "https://api.pandascore.co").rstrip("/")
+SAMPLE_MATCHES_PATH = Path(os.getenv("SAMPLE_MATCHES_PATH", ROOT / "data" / "sample_matches.csv"))
+FIXTURES_PATH = Path(os.getenv("FIXTURES_PATH", ROOT / "data" / "fixtures" / "upcoming.json"))
+ARTIFACTS_DIR = ROOT / "ml" / "artifacts"
+MODEL_NAME = "elo_logreg"
+MODEL_VERSION = os.getenv("MODEL_VERSION", "0.1.0")
+ELO_K = 32.0
+ELO_START = 1500.0

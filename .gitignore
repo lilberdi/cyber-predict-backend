@@ -1,0 +1,19 @@
+.bin/
+.idea/
+.vscode/
+.DS_Store
+.env
+*.exe
+*.out
+coverage.out
+
+__pycache__/
+.pytest_cache/
+.venv/
+*.pyc
+ml/artifacts/*.joblib
+ml/artifacts/*.pkl
+!ml/artifacts/.gitkeep
+
+# local postgres volume leftovers
+pgdata/

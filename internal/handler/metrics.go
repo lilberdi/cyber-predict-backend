@@ -29,8 +29,9 @@ func (a *API) GetMetrics(c *gin.Context) {
 	}
 	item.Disclaimer = "Учебный прототип. Прогнозы не являются ставками или финансовой рекомендацией."
 	item.DataSources = []string{
-		"historical: bundled sample CS2-style match history (replace with licensed Kaggle/HF dataset)",
-		"upcoming: PandaScore /csgo/matches/upcoming or local fixtures",
+		"historical: PandaScore /csgo/matches/past (finished CS2 matches); HLTV is not used",
+		"upcoming: PandaScore /csgo/matches/upcoming (demo fixtures only when no token is set)",
+		"rosters: PandaScore /csgo/teams (current rosters, history kept from the first snapshot)",
 	}
 	c.JSON(http.StatusOK, gin.H{"data": item})
 }

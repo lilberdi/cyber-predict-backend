@@ -97,8 +97,10 @@ class TeamBook:
             "games_team2": self.games(t2),
         }
 
-    def update(self, t1: str, t2: str, when: pd.Timestamp, team1_won: bool, score1=None, score2=None) -> None:
-        self.elo.apply(t1, t2, team1_won)
+    def update(self, t1: str, t2: str, when: pd.Timestamp, team1_won: bool, score1=None, score2=None, tier=None) -> None:
+        has_score = score1 is not None and score2 is not None and score1 == score1 and score2 == score2 and score1 + score2 > 0
+        elo_margin = abs(float(score1) - float(score2)) / (float(score1) + float(score2)) if has_score else 0.0
+        self.elo.apply(t1, t2, team1_won, elo_margin, tier_value(tier))
         for team, won in ((t1, team1_won), (t2, not team1_won)):
             self.results[team].append(int(won))
             prev = self.ewm.get(team, 0.5)
@@ -121,7 +123,7 @@ def build_book(history: pd.DataFrame, before: pd.Timestamp | None = None) -> Tea
     for row in df.itertuples(index=False):
         book.update(
             row.team1, row.team2, pd.Timestamp(row.played_at), row.winner == row.team1,
-            getattr(row, "score1", None), getattr(row, "score2", None),
+            getattr(row, "score1", None), getattr(row, "score2", None), getattr(row, "tournament_tier", None),
         )
     return book
 
@@ -137,7 +139,10 @@ def build_pre_match_features(history: pd.DataFrame) -> pd.DataFrame:
         feat = book.features(t1, t2, when, getattr(row, "best_of", 3), getattr(row, "tournament_tier", None))
         team1_won = row.winner == t1
         rows.append({"match_id": row.match_id, "played_at": when, "team1": t1, "team2": t2, "team1_win": int(team1_won), **feat})
-        book.update(t1, t2, when, team1_won, getattr(row, "score1", None), getattr(row, "score2", None))
+        book.update(
+            t1, t2, when, team1_won, getattr(row, "score1", None), getattr(row, "score2", None),
+            getattr(row, "tournament_tier", None),
+        )
     return pd.DataFrame(rows)
 
 

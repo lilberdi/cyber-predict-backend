@@ -100,3 +100,26 @@ def test_calibrator_choice_defaults_to_raw_on_small_data():
     from ml.train import _choose_calibrator
 
     assert _choose_calibrator(np.array([0.4, 0.6] * 10), np.array([0, 1] * 10)) == "raw"
+
+
+def test_elo_upset_gains_more_than_even_match():
+    from ml.elo import EloBook
+
+    even = EloBook.fresh()
+    even.apply("A", "B", True)
+    upset = EloBook.fresh()
+    upset.ratings.update({"A": 1400.0, "B": 1600.0})
+    upset.apply("A", "B", True)
+    assert upset.ratings["A"] - 1400.0 > even.ratings["A"] - 1500.0
+
+
+def test_elo_newcomer_moves_faster_and_sweep_counts_more():
+    from ml.elo import EloBook
+
+    book = EloBook.fresh()
+    book.played["VET"] = 200
+    assert book.team_k("NEW") > book.team_k("VET")
+    close, sweep = EloBook.fresh(), EloBook.fresh()
+    close.apply("A", "B", True, margin=1 / 3)
+    sweep.apply("A", "B", True, margin=1.0)
+    assert sweep.ratings["A"] > close.ratings["A"]

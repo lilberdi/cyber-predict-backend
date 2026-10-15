@@ -6,9 +6,9 @@
 
 Документы дисциплины «Управление проектами»: [docs/pm](docs/pm). Отчёт на защиту: [docs/pm/07-otchet-na-zashchitu.md](docs/pm/07-otchet-na-zashchitu.md). Интерактивный контракт: **Swagger UI** `/swagger/` (спека [docs/openapi.yaml](docs/openapi.yaml)).
 
-## Дашборд и модель XGBoost
+## Модель XGBoost
 
-`http://localhost:<PORT>/` — страница с живыми матчами PandaScore (топ-60), вероятностями **XGBoost**, объяснением прогноза (SHAP по признакам) и сравнением Elo / logreg / XGBoost. Обучение: `make train` (обучает logreg и XGBoost, прод-модель — XGBoost); `docker compose up` поднимает `ml`-воркер, который каждые 10 минут пересчитывает прогнозы для новых матчей.
+Прод-модель — **XGBoost** (`make train` обучает также logreg и Elo как baseline и сравнивает их). Прогнозы с SHAP-объяснением отдаёт `GET /api/v1/matches/upcoming`; `docker compose up` поднимает `ml`-воркер, пересчитывающий прогнозы каждые 10 минут. Фронтенд (Vue) живёт отдельно и ходит в этот API (`CORS_ORIGIN`).
 
 ## Что готово (недели 1–4)
 

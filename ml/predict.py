@@ -75,7 +75,7 @@ def predict_upcoming() -> int:
         with conn.cursor() as cur:
             cur.execute(
                 """
-                SELECT m.id, t1.name AS team1, t2.name AS team2, m.scheduled_at, m.best_of
+                SELECT m.id, t1.name AS team1, t2.name AS team2, m.scheduled_at, m.best_of, m.tournament_tier
                 FROM matches m
                 JOIN teams t1 ON t1.id = m.team1_id
                 JOIN teams t2 ON t2.id = m.team2_id
@@ -88,7 +88,7 @@ def predict_upcoming() -> int:
             for row in upcoming:
                 when = row["scheduled_at"] or now
                 when_ts = pd.Timestamp(when)
-                feat = snapshot_for_upcoming(history, row["team1"], row["team2"], when_ts, row["best_of"] or 3)
+                feat = snapshot_for_upcoming(history, row["team1"], row["team2"], when_ts, row["best_of"] or 3, row["tournament_tier"])
                 p1, known = _calibrated_proba(artifact, feat)
                 p2 = 1.0 - p1
                 top = _top_features(artifact, feat)

@@ -5,8 +5,8 @@
   "n_test": 180,
   "elo_favorite_accuracy": 0.6444444444444445,
   "accuracy": 0.6166666666666667,
-  "log_loss": 0.6586916446685791,
-  "brier": 0.23329906165599823,
+  "log_loss": 0.6596025824546814,
+  "brier": 0.23357191681861877,
   "artifact": "/Users/lilberdi/Documents/cyber-predict-backend/ml/artifacts/elo_xgboost.joblib",
   "extra": {
     "split": "chronological_80_20",
@@ -26,8 +26,8 @@
       },
       "elo_xgboost": {
         "accuracy": 0.6166666666666667,
-        "log_loss": 0.6586916446685791,
-        "brier": 0.23329906165599823,
+        "log_loss": 0.6596025824546814,
+        "brier": 0.23357191681861877,
         "label": "XGBoost"
       }
     },
@@ -38,22 +38,24 @@
       "form10_diff",
       "h2h_diff",
       "exp_diff",
-      "best_of"
+      "best_of",
+      "tier"
     ],
     "feature_importance": {
-      "elo_diff": 0.2985,
-      "form5_diff": 0.1348,
-      "form10_diff": 0.2367,
-      "h2h_diff": 0.068,
-      "exp_diff": 0.1315,
-      "best_of": 0.1306
+      "elo_diff": 0.3317,
+      "form5_diff": 0.1293,
+      "form10_diff": 0.1589,
+      "h2h_diff": 0.1263,
+      "exp_diff": 0.0817,
+      "best_of": 0.0777,
+      "tier": 0.0945
     },
     "xgb_params": {
-      "n_estimators": 80,
+      "n_estimators": 40,
       "max_depth": 2,
       "learning_rate": 0.05,
-      "min_child_weight": 8,
-      "reg_lambda": 3.0
+      "min_child_weight": 10,
+      "reg_lambda": 5.0
     }
   }
 }

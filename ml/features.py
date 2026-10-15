@@ -12,7 +12,7 @@ from ml.elo import EloBook
 
 FEATURE_COLUMNS = ["elo_diff", "form5_diff", "form10_diff", "h2h_diff"]
 # XGBoost sees two extra pre-match signals: experience gap and series length.
-XGB_FEATURE_COLUMNS = FEATURE_COLUMNS + ["exp_diff", "best_of"]
+XGB_FEATURE_COLUMNS = FEATURE_COLUMNS + ["exp_diff", "best_of", "tier"]
 
 
 # Live PandaScore names -> names used in history (lowercase keys).
@@ -35,6 +35,14 @@ def resolve_team(name: str, history: pd.DataFrame) -> str:
     key = name.strip().lower()
     key = TEAM_ALIASES.get(key, key)
     return known.get(key, name)
+
+
+_TIERS = {"s": 4, "a": 3, "b": 2, "c": 1, "d": 0}
+
+
+def tier_value(tier) -> int:
+    """Tournament prestige: S=4 ... D=0; unknown -> 2."""
+    return _TIERS.get(str(tier).strip().lower(), 2) if tier is not None and tier == tier else 2
 
 
 def build_pre_match_features(history: pd.DataFrame) -> pd.DataFrame:
@@ -75,6 +83,7 @@ def build_pre_match_features(history: pd.DataFrame) -> pd.DataFrame:
                 "h2h_diff": h2h,
                 "exp_diff": exp_diff,
                 "best_of": int(getattr(row, "best_of", 3) or 3),
+                "tier": tier_value(getattr(row, "tournament_tier", None)),
             }
         )
 
@@ -88,7 +97,7 @@ def build_pre_match_features(history: pd.DataFrame) -> pd.DataFrame:
 
 
 def snapshot_for_upcoming(
-    history: pd.DataFrame, team1: str, team2: str, when: pd.Timestamp, best_of: int = 3
+    history: pd.DataFrame, team1: str, team2: str, when: pd.Timestamp, best_of: int = 3, tier=None
 ) -> dict[str, float]:
     """Features for an upcoming match using only history with played_at < when."""
     team1, team2 = resolve_team(team1, history), resolve_team(team2, history)
@@ -116,6 +125,7 @@ def snapshot_for_upcoming(
         "h2h_diff": _h2h(h2h_wins, team1, team2, when),
         "exp_diff": book.played.get(team1, 0) - book.played.get(team2, 0),
         "best_of": int(best_of or 3),
+        "tier": tier_value(tier),
         "games_team1": book.played.get(team1, 0),
         "games_team2": book.played.get(team2, 0),
     }

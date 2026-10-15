@@ -3,6 +3,7 @@ package store
 import (
 	"context"
 	"errors"
+	"math"
 	"time"
 
 	"github.com/jackc/pgx/v5"
@@ -62,11 +63,23 @@ LIMIT $1
 		if err != nil {
 			return nil, err
 		}
-		rank := len(out) + 1
-		p.Rank = &rank
 		out = append(out, p)
 	}
+	assignRanks(out)
 	return out, rows.Err()
+}
+
+// assignRanks gives equal places to equal ratings as shown to the user (rounded to a whole
+// number): 1, 1, 3. Input must be sorted by rating, best first.
+func assignRanks(players []model.Player) {
+	for i := range players {
+		rank := i + 1
+		if i > 0 && players[i].Rating != nil && players[i-1].Rating != nil &&
+			math.Round(*players[i].Rating) == math.Round(*players[i-1].Rating) {
+			rank = *players[i-1].Rank
+		}
+		players[i].Rank = &rank
+	}
 }
 
 func (s *Store) GetPlayer(ctx context.Context, id int64) (model.PlayerDetail, error) {
@@ -150,7 +163,7 @@ WHERE r.team_id = $1 ORDER BY COALESCE(pr.matches_played, 0) DESC, pr.rating DES
 		}
 		d.Roster = append(d.Roster, p)
 	}
-	d.RosterNote = "Current roster from PandaScore; it may list substitutes. History starts when roster tracking began."
+	d.RosterNote = "Текущий состав из PandaScore, в списке могут быть запасные. История составов ведётся с момента запуска отслеживания."
 	return d, rows.Err()
 }
 

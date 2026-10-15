@@ -594,7 +594,7 @@ components:
         rating: { type: number, nullable: true, example: 1523.4 }
         rated_matches: { type: integer, description: Сколько матчей учтено в рейтинге }
         rating_is_seed: { type: boolean, description: true - рейтинг ещё равен стартовому (Elo команды) }
-        rank: { type: integer, description: Место в выдаче рейтинга }
+        rank: { type: integer, description: "Место в выдаче. При равном (округлённом до целого) рейтинге место общее: 1, 1, 3" }
     RatingPoint:
       type: object
       properties:

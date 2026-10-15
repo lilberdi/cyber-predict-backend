@@ -133,6 +133,38 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
 
+  /api/v1/matches/finished:
+    get:
+      tags: [Матчи]
+      operationId: listFinishedMatches
+      summary: Сыгранные матчи — прогноз против факта
+      description: |
+        **Зачем.** Страница «Факт против прогноза»: показать, угадала ли модель реальные матчи.
+
+        **Что делает.** Возвращает завершённые матчи, у которых прогноз был сохранён **до начала**
+        игры (`predictions.created_at <= scheduled_at`), новые сверху. В каждом матче есть
+        `winner_team_id` и `prediction_correct` (фаворит модели совпал с победителем).
+        Прогнозы, посчитанные после старта, сюда не попадают.
+      parameters:
+        - name: limit
+          in: query
+          required: false
+          description: Сколько матчей вернуть. По умолчанию 50, максимум 100.
+          schema: { type: integer, default: 50, minimum: 1, maximum: 100 }
+      responses:
+        "200":
+          description: Список матчей; пуст, пока ни один из прогнозированных матчей не сыгран
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MatchListResponse"
+        "500":
+          description: Ошибка чтения PostgreSQL
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
   /api/v1/matches/{id}:
     get:
       tags: [Матчи]
@@ -281,6 +313,45 @@ paths:
           description: Календарь обновлён
         "502":
           description: PandaScore недоступен
+
+  /api/v1/model/live-accuracy:
+    get:
+      tags: [Модель]
+      operationId: getLiveAccuracy
+      summary: Реальная точность на сыгранных матчах
+      description: |
+        **Зачем.** Честная проверка модели «в бою»: доля угаданных матчей среди тех, что
+        мы спрогнозировали до начала и которые уже сыграны. Растёт со временем.
+
+        **Что делает.** Сравнивает фаворита из `predictions` с победителем в `matches`.
+        Учитываются только прогнозы, сохранённые до старта; ровные 50/50 исключены.
+        Разрезы: по уверенности (`by_confidence`) и по модели (`by_model`: `elo_xgboost`, `elo_sync`).
+        Пока сыгранных матчей нет, `evaluated = 0`.
+      responses:
+        "200":
+          description: Счётчики точности
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LiveAccuracyResponse"
+              example:
+                data:
+                  evaluated: 12
+                  correct: 8
+                  accuracy: 0.667
+                  by_confidence:
+                    high: { evaluated: 4, correct: 3, accuracy: 0.75 }
+                    low: { evaluated: 8, correct: 5, accuracy: 0.625 }
+                  by_model:
+                    elo_xgboost: { evaluated: 12, correct: 8, accuracy: 0.667 }
+                  since: "2026-10-16T07:00:00Z"
+                  note: Only predictions stored before the match start are counted; exact 50/50 calls are excluded.
+        "500":
+          description: Ошибка чтения PostgreSQL
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
 
   /api/v1/model/metrics:
     get:
@@ -431,6 +502,9 @@ components:
           allOf:
             - $ref: "#/components/schemas/Prediction"
           nullable: true
+        prediction_correct:
+          type: boolean
+          description: Только в `/matches/finished`. true, если фаворит модели выиграл матч.
     ModelMetrics:
       type: object
       description: Последний отчёт обучения + юридические пометки
@@ -448,12 +522,41 @@ components:
           type: object
           description: >
             Сравнение моделей (`comparison`: Elo / logreg / XGBoost), список признаков,
-            `feature_importance` (gain XGBoost), `active_model`.
+            `feature_importance` (gain XGBoost), `active_model`, `data` (источник и размер истории),
+            `walk_forward` (среднее и разброс по 5 окнам), `significance` (95% доверительные
+            интервалы), `ablation` (вклад каждого нового признака), `calibration` (ECE и
+            таблица надёжности), `known_teams_only` (метрики только по командам с историей).
           additionalProperties: true
         disclaimer: { type: string }
         data_sources:
           type: array
           items: { type: string }
+    AccuracyBucket:
+      type: object
+      properties:
+        evaluated: { type: integer }
+        correct: { type: integer }
+        accuracy: { type: number }
+    LiveAccuracy:
+      type: object
+      properties:
+        evaluated: { type: integer }
+        correct: { type: integer }
+        accuracy: { type: number }
+        by_confidence:
+          type: object
+          additionalProperties: { $ref: "#/components/schemas/AccuracyBucket" }
+        by_model:
+          type: object
+          additionalProperties: { $ref: "#/components/schemas/AccuracyBucket" }
+        since: { type: string, format: date-time, nullable: true }
+        note: { type: string }
+    LiveAccuracyResponse:
+      type: object
+      required: [data]
+      properties:
+        data:
+          $ref: "#/components/schemas/LiveAccuracy"
     ErrorBody:
       type: object
       required: [code, message]

@@ -15,6 +15,10 @@ def main(argv: list[str] | None = None) -> int:
     p_load = sub.add_parser("load-history", help="Load finished matches from CSV into Postgres")
     p_load.add_argument("--path")
 
+    p_past = sub.add_parser("ingest-past", help="Load ~10k newest real finished CS2 matches from PandaScore")
+    p_past.add_argument("--max-pages", type=int, default=100)
+    p_past.add_argument("--days", type=int, help="only the last N days (incremental)")
+
     sub.add_parser("train", help="Train Elo + logistic regression baseline")
     sub.add_parser("sync", help="Pull upcoming matches from PandaScore or fixtures")
     sub.add_parser("predict", help="Write predictions for upcoming matches")
@@ -36,6 +40,12 @@ def main(argv: list[str] | None = None) -> int:
 
         n = load_csv(Path(args.path) if args.path else None)
         print(f"loaded {n} finished matches")
+        return 0
+
+    if args.cmd == "ingest-past":
+        from ml.history_pandascore import ingest, ingest_recent
+
+        print(json.dumps(ingest_recent(args.days) if args.days else ingest(args.max_pages), indent=2))
         return 0
 
     if args.cmd == "train":

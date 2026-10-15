@@ -30,10 +30,12 @@ func NewRouter(a *API, corsOrigin string) *gin.Engine {
 		matches := v1.Group("/matches")
 		{
 			matches.GET("/upcoming", a.ListUpcoming)
+			matches.GET("/finished", a.ListFinished)
 			matches.GET("/:id", a.GetMatch)
 		}
 		v1.GET("/predictions/:id", a.GetPrediction)
 		v1.GET("/model/metrics", a.GetMetrics)
+		v1.GET("/model/live-accuracy", a.GetLiveAccuracy)
 		v1.GET("/jobs/sync-upcoming", a.SyncUpcoming)
 		v1.POST("/jobs/sync-upcoming", a.SyncUpcoming)
 	}

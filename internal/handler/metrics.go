@@ -8,6 +8,15 @@ import (
 	"github.com/lilberdi/cyber-predict/internal/store"
 )
 
+func (a *API) GetLiveAccuracy(c *gin.Context) {
+	item, err := a.Store.LiveAccuracy(c.Request.Context())
+	if err != nil {
+		writeError(c, http.StatusInternalServerError, "db_error", err.Error())
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"data": item})
+}
+
 func (a *API) GetMetrics(c *gin.Context) {
 	item, err := a.Store.LatestMetrics(c.Request.Context())
 	if errors.Is(err, store.ErrNotFound) {

@@ -2,7 +2,7 @@ COMPOSE = docker compose
 PYTHON ?= python3.11
 export DATABASE_URL ?= postgres://cyber:cyber@localhost:55432/cyber_predict?sslmode=disable
 
-.PHONY: up down logs api test-go tidy \
+.PHONY: up down logs api test-go tidy ingest-past \
 	venv install-ml sample load-history train sync predict pipeline
 
 up:
@@ -48,5 +48,8 @@ sync:
 predict:
 	$(PYTHON) -m ml predict
 
-pipeline: sample load-history train sync predict
+pipeline: ingest-past train sync predict
 	@echo "week 1-4 pipeline done"
+
+ingest-past:
+	$(PYTHON) -m ml ingest-past

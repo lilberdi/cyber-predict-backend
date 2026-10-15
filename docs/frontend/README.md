@@ -35,6 +35,8 @@ export default {
 | GET | `/api/v1/matches/upcoming?limit=50` | Список ближайших матчей с прогнозом (1–100, по умолчанию 50) |
 | GET | `/api/v1/matches/{id}` | Карточка матча |
 | GET | `/api/v1/predictions/{match_id}` | Только прогноз (404, если ещё не посчитан) |
+| GET | `/api/v1/matches/finished?limit=50` | «Факт против прогноза»: сыгранные матчи с прогнозом, сделанным до старта |
+| GET | `/api/v1/model/live-accuracy` | Реальная точность модели на сыгранных матчах |
 | GET | `/api/v1/model/metrics` | Страница «О модели» |
 | GET | `/health` | Индикатор «API жив» |
 
@@ -112,8 +114,28 @@ export default {
 | `exp_diff` | Опыт (число матчей) | разница числа матчей в истории |
 | `best_of` | Формат серии | 1, 3 или 5 |
 | `tier` | Тир турнира | 4=S, 3=A, 2=B, 1=C, 0=D |
+| `ewm_form_diff` | Форма с затуханием | разница, от −1 до 1; свежие матчи весят больше |
+| `rest_diff` | Отдых между матчами (дни) | положительно — у team1 пауза дольше |
+| `margin_diff` | Разница по картам | среднее по последним 10 матчам, от −1 до 1 |
 
 Для неизвестного `name` выводите сам `name` — список признаков может расшириться.
+
+### Сыгранные матчи и точность в бою
+
+`GET /api/v1/matches/finished` возвращает массив `Match` (см. выше) со статусом `finished`: у каждого есть `winner_team_id`, `score` и `prediction`, плюс булево поле `prediction_correct` (фаворит модели совпал с победителем). Победитель: `winner_team_id === team1.id` → победила team1. В список попадают только матчи, прогноз на которые был сохранён до старта. Пока таких нет, массив пуст: показывайте «Копим статистику».
+
+`GET /api/v1/model/live-accuracy`:
+
+```json
+{ "data": {
+  "evaluated": 12, "correct": 8, "accuracy": 0.667,
+  "by_confidence": { "high": { "evaluated": 4, "correct": 3, "accuracy": 0.75 }, "low": { "evaluated": 8, "correct": 5, "accuracy": 0.625 } },
+  "by_model": { "elo_xgboost": { "evaluated": 12, "correct": 8, "accuracy": 0.667 } },
+  "since": "2026-10-16T07:00:00Z",
+  "note": "..." } }
+```
+
+При `evaluated = 0` не рисуйте проценты. Показывайте числа `correct из evaluated`, а процент только когда `evaluated` хотя бы 10: на малой выборке он вводит в заблуждение.
 
 ### ModelMetrics (`/api/v1/model/metrics`)
 
@@ -141,6 +163,11 @@ export default {
 ```
 
 - `comparison` — три модели на одном тесте: удобно для столбчатой диаграммы.
+- `data` — откуда и сколько данных: `source` (`pandascore` или `synthetic`), `n_matches`, `n_teams`, `from`, `to`.
+- `walk_forward.results.<модель>.accuracy.mean/std` — устойчивость по 5 временным окнам.
+- `significance.xgboost_minus_elo.ci95` — доверительный интервал разницы с Elo; если он включает 0, преимущество не доказано (так и подписывайте).
+- `ablation.<признак>.log_loss_gain` — вклад признака; `calibration.reliability` — точки для графика надёжности (`predicted` по оси X, `actual` по Y).
+- `known_teams_only` — метрики только для пар, где у обеих команд есть история.
 - `feature_importance` — доли, в сумме 1: для горизонтальных полос.
 - `extra` может отсутствовать, если модель ещё не обучалась: обрабатывайте `?.`.
 - Ответ 404 `not_found` значит «модель не обучена» — показать заглушку.
@@ -149,8 +176,9 @@ export default {
 
 1. **Список матчей** (`/`): карточка на матч: логотипы и названия команд, время и турнир, BO, полоса вероятности из двух цветов с процентами, бейджи «уверенность» и «live/демо», кнопка «Почему такой прогноз». Фильтры: поиск по команде или турниру, уверенность, сортировка по времени или по перевесу (`|p − 0.5|`). Автообновление раз в минуту.
 2. **Карточка матча** (`/match/:id`): крупная полоса вероятности, `explanation`, список `top_features` как расходящиеся полосы от центра (влево — team1, вправо — team2, длина по `|contribution|`), подпись «Вклад признака в вероятность (SHAP)».
-3. **О модели** (`/about`): метрики, сравнение моделей, важность признаков, дисклеймер, источники данных, честная пометка: история для обучения пока синтетическая, поэтому XGBoost не лучше Elo.
-4. **Футер на всех страницах:** дисклеймер из `/model/metrics` (или константа «Учебный прототип, не ставки»).
+3. **О модели** (`/about`): метрики, сравнение моделей, важность признаков, доверительные интервалы, график надёжности, дисклеймер и источники данных. Пометка: по числу угаданных матчей XGBoost статистически не отличается от Elo, но лучше оценивает вероятности (log-loss).
+4. **Факт против прогноза** (`/results`): счётчик из `live-accuracy` и лента сыгранных матчей из `/matches/finished` с отметкой «угадали / не угадали».
+5. **Футер на всех страницах:** дисклеймер из `/model/metrics` (или константа «Учебный прототип, не ставки»).
 
 Состояния, которые нужно обработать на каждом экране: загрузка, пустой список (календарь может быть пуст), ошибка сети/API (кнопка «Повторить»), `prediction: null`.
 
@@ -170,6 +198,8 @@ async function get(path) {
 export const getUpcoming = (limit = 50) => get(`/matches/upcoming?limit=${limit}`)
 export const getMatch = (id) => get(`/matches/${id}`)
 export const getMetrics = () => get('/model/metrics')
+export const getFinished = (limit = 50) => get(`/matches/finished?limit=${limit}`)
+export const getLiveAccuracy = () => get('/model/live-accuracy')
 ```
 
 ```vue
@@ -201,7 +231,7 @@ Vue 3 + Vite, Vue Router, Pinia (по желанию), Chart-библиотек�
 ```
 src/
   api.js                  # запросы
-  views/MatchList.vue  MatchDetail.vue  About.vue
+  views/MatchList.vue  MatchDetail.vue  About.vue  Results.vue
   components/ProbabilityBar.vue  FeatureBars.vue  TeamLogo.vue  ConfidenceBadge.vue
   utils/format.js         # проценты, время, подписи признаков
 ```
@@ -217,4 +247,4 @@ src/
 
 ## 8. Вопросы по API
 
-Контракт и примеры ответов: Swagger (`/swagger/`). Что менять в контракте — в [docs/openapi.yaml](../openapi.yaml). Логика модели и признаков: [отчёт по этапу S3](../pm/08-otchet-etap-s3-xgboost.md).
+Контракт и примеры ответов: Swagger (`/swagger/`). Что менять в контракте — в [docs/openapi.yaml](../openapi.yaml). Логика модели и признаков: [отчёт по этапу S4](../pm/09-otchet-realnye-dannye.md).

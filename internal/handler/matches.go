@@ -19,6 +19,16 @@ func (a *API) ListUpcoming(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"data": items})
 }
 
+func (a *API) ListFinished(c *gin.Context) {
+	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "50"))
+	items, err := a.Store.ListFinishedWithPrediction(c.Request.Context(), limit)
+	if err != nil {
+		writeError(c, http.StatusInternalServerError, "db_error", err.Error())
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"data": items})
+}
+
 func (a *API) GetMatch(c *gin.Context) {
 	id, ok := parseID(c)
 	if !ok {

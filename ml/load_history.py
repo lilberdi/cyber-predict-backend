@@ -62,9 +62,16 @@ def load_csv(path: Path | None = None) -> int:
     return inserted
 
 
-def finished_matches_frame() -> pd.DataFrame:
+MIN_REAL_MATCHES = 500
+
+
+def finished_matches_frame(source: str | None = None) -> pd.DataFrame:
+    """Finished matches for training. Real PandaScore history wins over the synthetic sample."""
     with connect() as conn:
         with conn.cursor() as cur:
+            if source is None:
+                cur.execute("SELECT count(*) AS n FROM matches WHERE status='finished' AND source='pandascore'")
+                source = "pandascore" if cur.fetchone()["n"] >= MIN_REAL_MATCHES else "dataset"
             cur.execute(
                 """
                 SELECT m.external_id AS match_id,
@@ -78,9 +85,10 @@ def finished_matches_frame() -> pd.DataFrame:
                 JOIN teams t1 ON t1.id = m.team1_id
                 JOIN teams t2 ON t2.id = m.team2_id
                 JOIN teams tw ON tw.id = m.winner_team_id
-                WHERE m.status = 'finished' AND m.winner_team_id IS NOT NULL
+                WHERE m.status = 'finished' AND m.winner_team_id IS NOT NULL AND m.source = %s
                 ORDER BY m.scheduled_at
-                """
+                """,
+                (source,),
             )
             rows = cur.fetchall()
     return pd.DataFrame(rows)

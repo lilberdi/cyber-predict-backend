@@ -8,7 +8,7 @@
 
 ## Модель XGBoost
 
-Прод-модель — **XGBoost** (`make train` обучает также logreg и Elo как baseline и сравнивает их). Прогнозы с SHAP-объяснением отдаёт `GET /api/v1/matches/upcoming`; `docker compose up` поднимает `ml`-воркер, пересчитывающий прогнозы каждые 10 минут. Фронтенд (Vue) живёт отдельно и ходит в этот API (`CORS_ORIGIN`).
+Обучение идёт на реальной истории PandaScore: `python -m ml ingest-past` (≈10 тыс. матчей, 2 минуты), затем `make train`. Отчёт с метриками: [docs/pm/09-otchet-realnye-dannye.md](docs/pm/09-otchet-realnye-dannye.md). Прод-модель — **XGBoost** (`make train` обучает также logreg и Elo как baseline и сравнивает их). Прогнозы с SHAP-объяснением отдаёт `GET /api/v1/matches/upcoming`; `docker compose up` поднимает `ml`-воркер, пересчитывающий прогнозы каждые 10 минут. Фронтенд (Vue) живёт отдельно и ходит в этот API (`CORS_ORIGIN`).
 
 ## Что готово (недели 1–4)
 

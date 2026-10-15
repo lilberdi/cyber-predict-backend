@@ -8,7 +8,7 @@ import xgboost as xgb
 
 from ml.config import MODEL_VERSION
 from ml.db import connect
-from ml.features import snapshot_for_upcoming
+from ml.features import build_book, snapshot_for_upcoming
 from ml.load_history import finished_matches_frame
 from ml.train import load_artifact, predict_proba
 
@@ -30,7 +30,7 @@ def _explanation(team1: str, team2: str, p: float, feat: dict) -> str:
     )
 
 
-_FLIPPED = {"elo_diff", "form5_diff", "form10_diff", "h2h_diff", "exp_diff"}
+_FLIPPED = {"elo_diff", "form5_diff", "form10_diff", "h2h_diff", "exp_diff", "ewm_form_diff", "rest_diff", "margin_diff"}
 MIN_HISTORY = 10  # matches of the less-known team needed for a full-strength forecast
 
 
@@ -70,6 +70,7 @@ def _top_features(artifact: dict, feat: dict, limit: int = 5) -> list[dict]:
 def predict_upcoming() -> int:
     artifact = load_artifact()
     history = finished_matches_frame()
+    book = build_book(history)  # replayed once; all finished matches are in the past
     written = 0
     with connect() as conn:
         with conn.cursor() as cur:
@@ -88,7 +89,7 @@ def predict_upcoming() -> int:
             for row in upcoming:
                 when = row["scheduled_at"] or now
                 when_ts = pd.Timestamp(when)
-                feat = snapshot_for_upcoming(history, row["team1"], row["team2"], when_ts, row["best_of"] or 3, row["tournament_tier"])
+                feat = snapshot_for_upcoming(history, row["team1"], row["team2"], when_ts, row["best_of"] or 3, row["tournament_tier"], book=book)
                 p1, known = _calibrated_proba(artifact, feat)
                 p2 = 1.0 - p1
                 top = _top_features(artifact, feat)

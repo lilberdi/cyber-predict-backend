@@ -84,6 +84,85 @@ LIMIT $1
 	return out, rows.Err()
 }
 
+// ListFinishedWithPrediction returns played matches whose prediction was stored before the start.
+func (s *Store) ListFinishedWithPrediction(ctx context.Context, limit int) ([]model.Match, error) {
+	if limit <= 0 || limit > 100 {
+		limit = 50
+	}
+	rows, err := s.pool.Query(ctx, matchSelect+`
+WHERE m.status = 'finished' AND m.winner_team_id IS NOT NULL
+  AND p.id IS NOT NULL AND p.created_at <= m.scheduled_at
+ORDER BY m.scheduled_at DESC, m.id DESC
+LIMIT $1
+`, limit)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	out := make([]model.Match, 0)
+	for rows.Next() {
+		m, err := scanMatch(rows)
+		if err != nil {
+			return nil, err
+		}
+		if m.Prediction != nil && m.WinnerTeamID != nil {
+			favT1 := m.Prediction.PTeam1Win >= 0.5
+			won1 := *m.WinnerTeamID == m.Team1.ID
+			ok := favT1 == won1
+			m.PredictionCorrect = &ok
+		}
+		out = append(out, m)
+	}
+	return out, rows.Err()
+}
+
+// LiveAccuracy scores stored pre-match predictions against real results.
+func (s *Store) LiveAccuracy(ctx context.Context) (model.LiveAccuracy, error) {
+	rows, err := s.pool.Query(ctx, `
+SELECT p.model_name, COALESCE(p.confidence, 'unknown'),
+       ((p.p_team1_win >= 0.5) = (m.winner_team_id = m.team1_id)) AS correct,
+       m.scheduled_at
+FROM matches m
+JOIN predictions p ON p.match_id = m.id
+WHERE m.status = 'finished' AND m.winner_team_id IS NOT NULL
+  AND p.created_at <= m.scheduled_at AND p.p_team1_win <> 0.5
+`)
+	if err != nil {
+		return model.LiveAccuracy{}, err
+	}
+	defer rows.Close()
+
+	out := model.LiveAccuracy{
+		ByConfidence: map[string]model.AccuracyBucket{},
+		ByModel:      map[string]model.AccuracyBucket{},
+		Note:         "Only predictions stored before the match start are counted; exact 50/50 calls are excluded.",
+	}
+	add := func(b model.AccuracyBucket, ok bool) model.AccuracyBucket {
+		b.Evaluated++
+		if ok {
+			b.Correct++
+		}
+		b.Accuracy = float64(b.Correct) / float64(b.Evaluated)
+		return b
+	}
+	for rows.Next() {
+		var name, conf string
+		var ok bool
+		var at *time.Time
+		if err := rows.Scan(&name, &conf, &ok, &at); err != nil {
+			return model.LiveAccuracy{}, err
+		}
+		out.AccuracyBucket = add(out.AccuracyBucket, ok)
+		out.ByConfidence[conf] = add(out.ByConfidence[conf], ok)
+		out.ByModel[name] = add(out.ByModel[name], ok)
+		if at != nil && (out.Since == nil || at.Before(*out.Since)) {
+			out.Since = at
+		}
+	}
+	return out, rows.Err()
+}
+
 func (s *Store) GetMatch(ctx context.Context, id int64) (model.Match, error) {
 	row := s.pool.QueryRow(ctx, matchSelect+`WHERE m.id = $1`, id)
 	m, err := scanMatch(row)

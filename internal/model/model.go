@@ -51,6 +51,23 @@ type Match struct {
 	Score          Score       `json:"score"`
 	WinnerTeamID   *int64      `json:"winner_team_id,omitempty"`
 	Prediction     *Prediction `json:"prediction,omitempty"`
+	// PredictionCorrect is set only for finished matches that had a pre-match prediction.
+	PredictionCorrect *bool `json:"prediction_correct,omitempty"`
+}
+
+type AccuracyBucket struct {
+	Evaluated int     `json:"evaluated"`
+	Correct   int     `json:"correct"`
+	Accuracy  float64 `json:"accuracy"`
+}
+
+// LiveAccuracy is the track record of predictions made before the match started.
+type LiveAccuracy struct {
+	AccuracyBucket
+	ByConfidence map[string]AccuracyBucket `json:"by_confidence"`
+	ByModel      map[string]AccuracyBucket `json:"by_model"`
+	Since        *time.Time                `json:"since,omitempty"`
+	Note         string                    `json:"note"`
 }
 
 type ModelMetrics struct {

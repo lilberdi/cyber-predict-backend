@@ -11,6 +11,30 @@ from ml.elo import EloBook
 
 
 FEATURE_COLUMNS = ["elo_diff", "form5_diff", "form10_diff", "h2h_diff"]
+# XGBoost sees two extra pre-match signals: experience gap and series length.
+XGB_FEATURE_COLUMNS = FEATURE_COLUMNS + ["exp_diff", "best_of"]
+
+
+# Live PandaScore names -> names used in history (lowercase keys).
+TEAM_ALIASES = {
+    "nip": "ninjas in pyjamas",
+    "liquid": "team liquid",
+    "navi": "natus vincere",
+    "natus vincere junior": "natus vincere",
+    "themongolz": "the mongolz",
+    "aurora gaming": "aurora",
+    "faze clan": "faze",
+    "spirit": "team spirit",
+    "vitality.": "vitality",
+}
+
+
+def resolve_team(name: str, history: pd.DataFrame) -> str:
+    """Map a live team name onto the spelling used in history (case/alias tolerant)."""
+    known = {n.lower(): n for n in pd.concat([history["team1"], history["team2"]]).unique()}
+    key = name.strip().lower()
+    key = TEAM_ALIASES.get(key, key)
+    return known.get(key, name)
 
 
 def build_pre_match_features(history: pd.DataFrame) -> pd.DataFrame:
@@ -33,6 +57,7 @@ def build_pre_match_features(history: pd.DataFrame) -> pd.DataFrame:
         form10_1 = _form(last_results[t1], 10)
         form10_2 = _form(last_results[t2], 10)
         h2h = _h2h(h2h_wins, t1, t2, when)
+        exp_diff = book.played.get(t1, 0) - book.played.get(t2, 0)
 
         team1_won = row.winner == t1
         rows.append(
@@ -48,6 +73,8 @@ def build_pre_match_features(history: pd.DataFrame) -> pd.DataFrame:
                 "form5_diff": form5_1 - form5_2,
                 "form10_diff": form10_1 - form10_2,
                 "h2h_diff": h2h,
+                "exp_diff": exp_diff,
+                "best_of": int(getattr(row, "best_of", 3) or 3),
             }
         )
 
@@ -60,8 +87,11 @@ def build_pre_match_features(history: pd.DataFrame) -> pd.DataFrame:
     return pd.DataFrame(rows)
 
 
-def snapshot_for_upcoming(history: pd.DataFrame, team1: str, team2: str, when: pd.Timestamp) -> dict[str, float]:
+def snapshot_for_upcoming(
+    history: pd.DataFrame, team1: str, team2: str, when: pd.Timestamp, best_of: int = 3
+) -> dict[str, float]:
     """Features for an upcoming match using only history with played_at < when."""
+    team1, team2 = resolve_team(team1, history), resolve_team(team2, history)
     past = history[pd.to_datetime(history["played_at"]) < when].sort_values("played_at")
     book = EloBook.fresh()
     last_results: dict[str, deque[int]] = defaultdict(lambda: deque(maxlen=10))
@@ -84,6 +114,10 @@ def snapshot_for_upcoming(history: pd.DataFrame, team1: str, team2: str, when: p
         "form5_diff": _form(last_results[team1], 5) - _form(last_results[team2], 5),
         "form10_diff": _form(last_results[team1], 10) - _form(last_results[team2], 10),
         "h2h_diff": _h2h(h2h_wins, team1, team2, when),
+        "exp_diff": book.played.get(team1, 0) - book.played.get(team2, 0),
+        "best_of": int(best_of or 3),
+        "games_team1": book.played.get(team1, 0),
+        "games_team2": book.played.get(team2, 0),
     }
 
 

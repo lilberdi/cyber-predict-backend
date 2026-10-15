@@ -19,6 +19,8 @@ func NewRouter(a *API, corsOrigin string) *gin.Engine {
 	r := gin.New()
 	r.Use(gin.Recovery(), gin.Logger(), cors(corsOrigin))
 
+	r.GET("/", serveDashboard)
+	r.GET("/dashboard", serveDashboard)
 	r.GET("/health", a.Health)
 	r.GET("/openapi.yaml", serveOpenAPI)
 	r.GET("/swagger", func(c *gin.Context) { c.Redirect(http.StatusFound, "/swagger/") })

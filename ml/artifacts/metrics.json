@@ -1,21 +1,59 @@
 {
-  "model_name": "elo_logreg",
-  "model_version": "0.1.0",
-  "n_train": 384,
-  "n_test": 96,
-  "accuracy": 0.65625,
-  "log_loss": 0.6572121404205206,
-  "brier": 0.22963012834717075,
-  "elo_favorite_accuracy": 0.65625,
-  "artifact": "/Users/lilberdi/Documents/cyber-predict-backend/ml/artifacts/elo_logreg.joblib",
+  "model_name": "elo_xgboost",
+  "model_version": "0.2.0",
+  "n_train": 720,
+  "n_test": 180,
+  "elo_favorite_accuracy": 0.6444444444444445,
+  "accuracy": 0.6166666666666667,
+  "log_loss": 0.6586916446685791,
+  "brier": 0.23329906165599823,
+  "artifact": "/Users/lilberdi/Documents/cyber-predict-backend/ml/artifacts/elo_xgboost.joblib",
   "extra": {
+    "split": "chronological_80_20",
+    "leakage_guard": "features use only matches before played_at",
+    "comparison": {
+      "elo_only": {
+        "accuracy": 0.6444444444444445,
+        "log_loss": 0.6620511858811278,
+        "brier": 0.23277767539370323,
+        "label": "Elo (\u043f\u0440\u0430\u0432\u0438\u043b\u043e \u0444\u0430\u0432\u043e\u0440\u0438\u0442\u0430)"
+      },
+      "elo_logreg": {
+        "accuracy": 0.6277777777777778,
+        "log_loss": 0.6582707903048067,
+        "brier": 0.23111437376132132,
+        "label": "Logistic regression"
+      },
+      "elo_xgboost": {
+        "accuracy": 0.6166666666666667,
+        "log_loss": 0.6586916446685791,
+        "brier": 0.23329906165599823,
+        "label": "XGBoost"
+      }
+    },
+    "active_model": "elo_xgboost",
     "features": [
       "elo_diff",
       "form5_diff",
       "form10_diff",
-      "h2h_diff"
+      "h2h_diff",
+      "exp_diff",
+      "best_of"
     ],
-    "split": "chronological_80_20",
-    "leakage_guard": "features use only matches before played_at"
+    "feature_importance": {
+      "elo_diff": 0.2985,
+      "form5_diff": 0.1348,
+      "form10_diff": 0.2367,
+      "h2h_diff": 0.068,
+      "exp_diff": 0.1315,
+      "best_of": 0.1306
+    },
+    "xgb_params": {
+      "n_estimators": 80,
+      "max_depth": 2,
+      "learning_rate": 0.05,
+      "min_child_weight": 8,
+      "reg_lambda": 3.0
+    }
   }
 }

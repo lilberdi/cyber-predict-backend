@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cyber Predict — прогнозы CS2</title>
+<style>
+:root{
+  --bg:#0e1116;--panel:#161b22;--panel2:#1c232c;--line:#2a323d;--text:#e6edf3;--mute:#8b98a8;
+  --t1:#4aa3ff;--t2:#ff8a4a;--ok:#3fb950;--warn:#d29922;--bad:#f85149;--accent:#a78bfa;
+}
+@media (prefers-color-scheme: light){
+  :root:not([data-theme="dark"]){--bg:#f4f6f9;--panel:#fff;--panel2:#f0f3f7;--line:#d8dee6;--text:#16202b;--mute:#5d6b7a;
+  --t1:#1f7ae0;--t2:#e0661f;--ok:#1a7f37;--warn:#9a6700;--bad:#cf222e;--accent:#6f42c1}
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:15px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+.wrap{max-width:1100px;margin:0 auto;padding:20px 16px 48px}
+header{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;margin-bottom:18px}
+h1{font-size:22px;margin:0;letter-spacing:.2px}
+h1 small{color:var(--mute);font-weight:400;font-size:14px;margin-left:8px}
+.pills{display:flex;flex-wrap:wrap;gap:8px}
+.pill{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;font-size:12.5px;border:1px solid var(--line);background:var(--panel);color:var(--mute)}
+.pill b{color:var(--text);font-weight:600}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--mute)}
+.live .dot{background:var(--ok);box-shadow:0 0 0 0 var(--ok);animation:pulse 1.8s infinite}
+.demo .dot{background:var(--warn)}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(63,185,80,.6)}70%{box-shadow:0 0 0 8px rgba(63,185,80,0)}100%{box-shadow:0 0 0 0 rgba(63,185,80,0)}}
+.pipeline{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:18px}
+.step{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px 12px;position:relative}
+.step .k{font-size:11px;text-transform:uppercase;letter-spacing:.6px;color:var(--mute)}
+.step .v{font-size:15px;font-weight:600;margin-top:2px}
+.step .s{font-size:12px;color:var(--mute);margin-top:2px}
+.step:not(:last-child)::after{content:"→";position:absolute;right:-12px;top:50%;transform:translateY(-50%);color:var(--mute);z-index:1}
+.grid{display:grid;grid-template-columns:2fr 1fr;gap:16px;align-items:start}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 16px}
+.card h2{font-size:14px;margin:0 0 10px;color:var(--mute);font-weight:600;text-transform:uppercase;letter-spacing:.6px}
+.toolbar{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+.toolbar input,.toolbar select{background:var(--panel);color:var(--text);border:1px solid var(--line);border-radius:8px;padding:7px 10px;font:inherit;font-size:13.5px}
+.toolbar input{flex:1;min-width:140px}
+.match{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin-bottom:10px}
+.mhead{display:flex;justify-content:space-between;gap:8px;font-size:12.5px;color:var(--mute);margin-bottom:10px;flex-wrap:wrap}
+.teams{display:grid;grid-template-columns:1fr auto 1fr;gap:10px;align-items:center}
+.team{display:flex;align-items:center;gap:10px;min-width:0}
+.team.r{flex-direction:row-reverse;text-align:right}
+.team img,.logo{width:34px;height:34px;border-radius:8px;object-fit:contain;background:var(--panel2);flex:none}
+.logo{display:grid;place-items:center;font-weight:700;color:var(--mute);font-size:13px}
+.team .n{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.team .p{font-size:22px;font-weight:700;font-variant-numeric:tabular-nums}
+.team.fav .p{color:var(--t1)}
+.team.r.fav .p{color:var(--t2)}
+.vs{color:var(--mute);font-size:12px}
+.bar{display:flex;height:10px;border-radius:6px;overflow:hidden;margin:12px 0 8px;background:var(--panel2)}
+.bar i{display:block;height:100%;transition:width .5s}
+.bar .a{background:var(--t1)}.bar .b{background:var(--t2)}
+.mfoot{display:flex;justify-content:space-between;gap:8px;align-items:center;flex-wrap:wrap}
+.badge{font-size:11.5px;padding:2px 8px;border-radius:999px;border:1px solid var(--line);color:var(--mute)}
+.badge.high{color:var(--ok);border-color:var(--ok)}.badge.medium{color:var(--warn);border-color:var(--warn)}.badge.low{color:var(--bad);border-color:var(--bad)}
+.badge.xgb{color:var(--accent);border-color:var(--accent)}
+button.link{background:none;border:0;color:var(--accent);cursor:pointer;font:inherit;font-size:13px;padding:0}
+.why{display:none;margin-top:12px;border-top:1px dashed var(--line);padding-top:12px}
+.match.open .why{display:block}
+.why p{margin:0 0 10px;color:var(--mute);font-size:13px}
+.feat{display:grid;grid-template-columns:130px 1fr 64px;gap:8px;align-items:center;font-size:12.5px;margin:5px 0}
+.feat .name{color:var(--mute)}
+.div{position:relative;height:8px;background:var(--panel2);border-radius:4px}
+.div::before{content:"";position:absolute;left:50%;top:-2px;bottom:-2px;width:1px;background:var(--line)}
+.div i{position:absolute;top:0;bottom:0;border-radius:4px}
+.feat .val{text-align:right;font-variant-numeric:tabular-nums;color:var(--text)}
+.legend{display:flex;justify-content:space-between;font-size:11.5px;color:var(--mute);margin-top:6px}
+.mrow{margin:10px 0}
+.mrow .lbl{display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px}
+.mrow .lbl span:last-child{color:var(--mute);font-variant-numeric:tabular-nums}
+.track{height:8px;background:var(--panel2);border-radius:4px;overflow:hidden}
+.track i{display:block;height:100%;background:var(--mute);border-radius:4px}
+.track i.x{background:var(--accent)}
+.note{font-size:12.5px;color:var(--mute);margin-top:10px}
+.empty{padding:40px 10px;text-align:center;color:var(--mute)}
+footer{margin-top:24px;color:var(--mute);font-size:12.5px;text-align:center}
+footer a{color:var(--accent)}
+@media (max-width:860px){.grid{grid-template-columns:1fr}.pipeline{grid-template-columns:1fr 1fr}.step::after{display:none}}
+@media (max-width:520px){.team .p{font-size:18px}.feat{grid-template-columns:90px 1fr 56px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Cyber Predict <small>прогнозы матчей CS2</small></h1>
+    <div class="pills" id="pills"></div>
+  </header>
+
+  <section class="pipeline" id="pipeline"></section>
+
+  <div class="grid">
+    <main>
+      <div class="toolbar">
+        <input id="q" type="search" placeholder="Поиск: команда или турнир">
+        <select id="conf">
+          <option value="">Любая уверенность</option>
+          <option value="high">Высокая</option>
+          <option value="medium">Средняя</option>
+          <option value="low">Низкая</option>
+        </select>
+        <select id="sort">
+          <option value="time">По времени</option>
+          <option value="edge">По перевесу фаворита</option>
+        </select>
+      </div>
+      <div id="matches"><div class="empty">Загрузка…</div></div>
+    </main>
+
+    <aside>
+      <div class="card" id="model"><h2>Модель</h2><div class="empty">Загрузка…</div></div>
+    </aside>
+  </div>
+
+  <footer>
+    Учебный прототип, не ставки и не финансовая рекомендация. Календарь — PandaScore API; HLTV не используется (ToS п. 2.2).<br>
+    <a href="/swagger/">Swagger</a> · <a href="/api/v1/matches/upcoming">JSON матчей</a> · <a href="/api/v1/model/metrics">JSON метрик</a>
+  </footer>
+</div>
+
+<script>
+const $ = (s) => document.querySelector(s);
+const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const pct = (x) => Math.round(x * 100);
+const FEAT = {
+  elo_diff: "Разница Elo", form5_diff: "Форма (5 матчей)", form10_diff: "Форма (10 матчей)",
+  h2h_diff: "Личные встречи", exp_diff: "Опыт (матчей)", best_of: "Формат BO"
+};
+const CONF = { high: "высокая", medium: "средняя", low: "низкая" };
+let matches = [], metrics = null, openIds = new Set();
+
+async function get(url) {
+  const r = await fetch(url);
+  if (!r.ok) throw new Error(url + " " + r.status);
+  return (await r.json()).data;
+}
+
+function when(iso) {
+  if (!iso) return "время не указано";
+  const d = new Date(iso), diff = d - Date.now();
+  const abs = d.toLocaleString("ru-RU", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" });
+  if (diff < 0) return abs + " · идёт/начался";
+  const h = Math.floor(diff / 36e5), m = Math.floor((diff % 36e5) / 6e4);
+  const left = h >= 24 ? Math.floor(h / 24) + " д " + (h % 24) + " ч" : h > 0 ? h + " ч " + m + " мин" : m + " мин";
+  return abs + " · через " + left;
+}
+
+function teamBlock(t, p, right, fav) {
+  const logo = t.image_url ? `<img src="${esc(t.image_url)}" alt="" loading="lazy" onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'logo',textContent:'${esc(t.name.slice(0,2).toUpperCase())}'}))">`
+                           : `<div class="logo">${esc(t.name.slice(0, 2).toUpperCase())}</div>`;
+  return `<div class="team ${right ? "r" : ""} ${fav ? "fav" : ""}">${logo}<div style="min-width:0"><div class="n" title="${esc(t.name)}">${esc(t.name)}</div><div class="p">${pct(p)}%</div></div></div>`;
+}
+
+function featRows(m) {
+  const fs = m.prediction.top_features || [];
+  if (!fs.length) return "";
+  const max = Math.max(0.01, ...fs.map((f) => Math.abs(f.contribution ?? 0)));
+  return fs.map((f) => {
+    const c = f.contribution;
+    let bar;
+    if (c == null) {
+      bar = `<div class="div"><i style="${f.impact === "favors_team1" ? "left:50%;width:25%;background:var(--t1)" : "right:50%;width:25%;background:var(--t2)"}"></i></div>`;
+    } else {
+      const w = Math.min(50, Math.abs(c) / max * 50);
+      bar = `<div class="div"><i style="${c > 0 ? `left:50%;width:${w}%;background:var(--t1)` : `right:50%;width:${w}%;background:var(--t2)`}"></i></div>`;
+    }
+    const num = Math.round(f.value * 100) / 100;
+    const v = f.name === "best_of" ? "BO" + num : (num > 0 ? "+" : "") + num;
+    return `<div class="feat"><span class="name">${esc(FEAT[f.name] || f.name)}</span>${bar}<span class="val">${esc(v)}</span></div>`;
+  }).join("");
+}
+
+function matchCard(m) {
+  const p = m.prediction;
+  const t = m.scheduled_at;
+  const head = `<div class="mhead"><span>${esc(m.tournament || "Турнир не указан")}${m.best_of ? " · BO" + m.best_of : ""}</span><span>${esc(when(t))}</span></div>`;
+  if (!p) return `<div class="match">${head}<div class="teams">${teamBlock(m.team1, 0.5, false)}<div class="vs">vs</div>${teamBlock(m.team2, 0.5, true)}</div><div class="note">Прогноз ещё не посчитан.</div></div>`;
+  const fav1 = p.p_team1_win >= 0.5;
+  const isX = (p.model_name || "").includes("xgboost");
+  const open = openIds.has(m.id) ? "open" : "";
+  return `<div class="match ${open}" data-id="${m.id}">
+    ${head}
+    <div class="teams">${teamBlock(m.team1, p.p_team1_win, false, fav1)}<div class="vs">vs</div>${teamBlock(m.team2, p.p_team2_win, true, !fav1)}</div>
+    <div class="bar"><i class="a" style="width:${pct(p.p_team1_win)}%"></i><i class="b" style="width:${pct(p.p_team2_win)}%"></i></div>
+    <div class="mfoot">
+      <span>
+        <span class="badge ${isX ? "xgb" : ""}">${isX ? "XGBoost" : esc(p.model_name)}</span>
+        <span class="badge ${esc(p.confidence || "")}">уверенность: ${esc(CONF[p.confidence] || "—")}</span>
+        ${m.source === "pandascore" ? '<span class="badge">live</span>' : '<span class="badge">fixture</span>'}
+      </span>
+      <button class="link" data-toggle="${m.id}">Почему такой прогноз ▾</button>
+    </div>
+    <div class="why">
+      <p>${esc(p.explanation || "")}</p>
+      ${featRows(m)}
+      <div class="legend"><span style="color:var(--t1)">← в пользу ${esc(m.team1.name)}</span><span style="color:var(--t2)">в пользу ${esc(m.team2.name)} →</span></div>
+      ${p.top_features?.some((f) => f.contribution != null) ? '<div class="note">Длина полосы — вклад признака в вероятность (SHAP, XGBoost).</div>' : '<div class="note">Быстрый Elo-прогноз; XGBoost подставится после следующего запуска предсказаний.</div>'}
+    </div>
+  </div>`;
+}
+
+function renderMatches() {
+  const q = $("#q").value.trim().toLowerCase(), conf = $("#conf").value, sort = $("#sort").value;
+  let list = matches.filter((m) =>
+    (!q || [m.team1.name, m.team2.name, m.tournament || ""].join(" ").toLowerCase().includes(q)) &&
+    (!conf || m.prediction?.confidence === conf));
+  if (sort === "edge") list = [...list].sort((a, b) => Math.abs((b.prediction?.p_team1_win ?? .5) - .5) - Math.abs((a.prediction?.p_team1_win ?? .5) - .5));
+  $("#matches").innerHTML = list.length ? list.map(matchCard).join("") : '<div class="empty">Нет матчей под фильтр.</div>';
+}
+
+function renderHeader() {
+  const live = matches.filter((m) => m.source === "pandascore").length;
+  const xgb = matches.filter((m) => (m.prediction?.model_name || "").includes("xgboost")).length;
+  const isLive = live > 0;
+  $("#pills").innerHTML = `
+    <span class="pill ${isLive ? "live" : "demo"}"><span class="dot"></span>${isLive ? "<b>LIVE</b> PandaScore" : "<b>Демо</b> фикстуры"}</span>
+    <span class="pill">матчей: <b>${matches.length}</b></span>
+    <span class="pill">XGBoost: <b>${xgb}</b></span>
+    <span class="pill">обновлено: <b>${new Date().toLocaleTimeString("ru-RU")}</b></span>`;
+  const top = metrics?.extra?.active_model ? "XGBoost" : (metrics?.model_name || "—");
+  const nTeams = new Set(matches.flatMap((m) => [m.team1.id, m.team2.id])).size;
+  $("#pipeline").innerHTML = [
+    ["1 · Источник", "PandaScore API", "официальный, раз в час"],
+    ["2 · Фильтр", "топ-60 команд", nTeams + " команд в ленте"],
+    ["3 · Признаки", (metrics?.extra?.features?.length ?? 4) + " метрик", "Elo · форма · H2H · опыт · BO"],
+    ["4 · Модель", top, metrics ? "v" + metrics.model_version : "не обучена"],
+    ["5 · Результат", matches.length + " прогнозов", "вероятность + объяснение"],
+  ].map(([k, v, s]) => `<div class="step"><div class="k">${k}</div><div class="v">${esc(v)}</div><div class="s">${esc(s)}</div></div>`).join("");
+}
+
+function renderModel() {
+  if (!metrics) { $("#model").innerHTML = '<h2>Модель</h2><div class="empty">Метрики не найдены: python -m ml train</div>'; return; }
+  const cmp = metrics.extra?.comparison || {};
+  const order = ["elo_only", "elo_logreg", "elo_xgboost"].filter((k) => cmp[k]);
+  const accRows = order.map((k) => {
+    const c = cmp[k], x = k === "elo_xgboost";
+    return `<div class="mrow"><div class="lbl"><span>${esc(c.label)}</span><span>${(c.accuracy * 100).toFixed(1)}% · LL ${c.log_loss.toFixed(3)}</span></div><div class="track"><i class="${x ? "x" : ""}" style="width:${c.accuracy * 100}%"></i></div></div>`;
+  }).join("");
+  const imp = metrics.extra?.feature_importance || {};
+  const impRows = Object.entries(imp).sort((a, b) => b[1] - a[1]).map(([k, v]) =>
+    `<div class="mrow"><div class="lbl"><span>${esc(FEAT[k] || k)}</span><span>${(v * 100).toFixed(0)}%</span></div><div class="track"><i class="x" style="width:${v * 100 / Math.max(...Object.values(imp)) }%"></i></div></div>`).join("");
+  $("#model").innerHTML = `
+    <h2>Точность на тесте</h2>
+    ${accRows || "<div class=empty>нет данных</div>"}
+    <div class="note">Хронологический сплит ${metrics.n_train}/${metrics.n_test}; LL — log-loss (меньше — лучше).</div>
+    <h2 style="margin-top:18px">Важность признаков (XGBoost)</h2>
+    ${impRows || "<div class=empty>нет данных</div>"}
+    <div class="note">История для обучения пока синтетическая (480 матчей) — это объясняет, почему XGBoost не обгоняет Elo. Реальный датасет — следующий этап.</div>`;
+}
+
+async function load() {
+  try {
+    [matches, metrics] = await Promise.all([get("/api/v1/matches/upcoming?limit=100"), get("/api/v1/model/metrics").catch(() => null)]);
+  } catch (e) {
+    $("#matches").innerHTML = '<div class="empty">API недоступен: ' + esc(e.message) + "</div>";
+    return;
+  }
+  renderHeader(); renderMatches(); renderModel();
+}
+
+document.addEventListener("click", (e) => {
+  const id = e.target.dataset?.toggle;
+  if (!id) return;
+  const n = Number(id), el = e.target.closest(".match");
+  openIds.has(n) ? openIds.delete(n) : openIds.add(n);
+  el.classList.toggle("open");
+});
+["#q", "#conf", "#sort"].forEach((s) => $(s).addEventListener("input", renderMatches));
+load();
+setInterval(load, 60000);
+</script>
+</body>
+</html>

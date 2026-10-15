@@ -40,6 +40,23 @@ TEAMS: dict[str, float] = {
     "M80": 1455,
     "Wildcard": 1445,
     "Rare Atom": 1435,
+    # Orgs that regularly appear in the live PandaScore calendar (strengths are simulated).
+    "PARIVISION": 1650,
+    "Virtus.pro": 1620,
+    "Ninjas in Pyjamas": 1600,
+    "BetBoom": 1600,
+    "GamerLegion": 1585,
+    "Cloud9": 1580,
+    "ENCE": 1550,
+    "fnatic": 1560,
+    "Eternal Fire": 1530,
+    "9z": 1520,
+    "FlyQuest": 1500,
+    "MIBR": 1500,
+    "100 Thieves": 1470,
+    "Alliance": 1450,
+    "PRIVATE": 1440,
+    "Sangal": 1450,
 }
 
 TOURNAMENTS = [

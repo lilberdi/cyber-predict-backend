@@ -18,6 +18,7 @@ def main(argv: list[str] | None = None) -> int:
     sub.add_parser("train", help="Train Elo + logistic regression baseline")
     sub.add_parser("sync", help="Pull upcoming matches from PandaScore or fixtures")
     sub.add_parser("predict", help="Write predictions for upcoming matches")
+    sub.add_parser("worker", help="Loop: train if needed, refresh XGBoost predictions")
 
     args = parser.parse_args(argv)
 
@@ -53,6 +54,12 @@ def main(argv: list[str] | None = None) -> int:
         from ml.predict import predict_upcoming
 
         print(json.dumps({"written": predict_upcoming()}, indent=2))
+        return 0
+
+    if args.cmd == "worker":
+        from ml.worker import run
+
+        run()
         return 0
 
     parser.error("unknown command")

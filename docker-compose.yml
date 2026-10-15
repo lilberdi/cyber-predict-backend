@@ -34,5 +34,20 @@ services:
       postgres:
         condition: service_healthy
 
+  ml:
+    build:
+      context: .
+      dockerfile: ml/Dockerfile
+    environment:
+      DATABASE_URL: postgres://cyber:cyber@postgres:5432/cyber_predict?sslmode=disable
+      MODEL_VERSION: ${MODEL_VERSION:-0.2.0}
+      PREDICT_INTERVAL_SECONDS: ${PREDICT_INTERVAL_SECONDS:-600}
+    volumes:
+      - mlartifacts:/app/ml/artifacts
+    depends_on:
+      api:
+        condition: service_started
+
 volumes:
   pgdata:
+  mlartifacts:

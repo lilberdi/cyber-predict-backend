@@ -4,8 +4,9 @@ import json
 from datetime import datetime, timezone
 
 import pandas as pd
+import xgboost as xgb
 
-from ml.config import MODEL_NAME, MODEL_VERSION
+from ml.config import MODEL_VERSION
 from ml.db import connect
 from ml.features import snapshot_for_upcoming
 from ml.load_history import finished_matches_frame
@@ -29,6 +30,43 @@ def _explanation(team1: str, team2: str, p: float, feat: dict) -> str:
     )
 
 
+_FLIPPED = {"elo_diff", "form5_diff", "form10_diff", "h2h_diff", "exp_diff"}
+MIN_HISTORY = 10  # matches of the less-known team needed for a full-strength forecast
+
+
+def _calibrated_proba(artifact: dict, feat: dict) -> tuple[float, int]:
+    """Slot-symmetric probability, shrunk toward 50% when a team has little history."""
+    p_a = predict_proba(artifact, feat)
+    flipped = {k: (-v if k in _FLIPPED else v) for k, v in feat.items()}
+    p = (p_a + (1.0 - predict_proba(artifact, flipped))) / 2.0
+    known = min(feat.get("games_team1", 0), feat.get("games_team2", 0))
+    weight = min(1.0, known / MIN_HISTORY)
+    return 0.5 + (p - 0.5) * weight, known
+
+
+def _top_features(artifact: dict, feat: dict, limit: int = 5) -> list[dict]:
+    """Per-match SHAP contributions (log-odds) for XGBoost; raw feature values otherwise."""
+    cols = artifact["feature_columns"]
+    clf = artifact["pipeline"].steps[-1][1]
+    if hasattr(clf, "get_booster"):
+        x = pd.DataFrame([{c: feat[c] for c in cols}])
+        contrib = clf.get_booster().predict(xgb.DMatrix(x, feature_names=cols), pred_contribs=True)[0]
+        ranked = sorted(zip(cols, contrib[:-1]), key=lambda kv: abs(kv[1]), reverse=True)[:limit]
+        return [
+            {
+                "name": name,
+                "value": round(float(feat[name]), 3),
+                "impact": "favors_team1" if c > 0 else "favors_team2",
+                "contribution": round(float(c), 3),
+            }
+            for name, c in ranked
+        ]
+    return [
+        {"name": c, "value": round(float(feat[c]), 3), "impact": "favors_team1" if feat[c] > 0 else "favors_team2"}
+        for c in cols
+    ][:limit]
+
+
 def predict_upcoming() -> int:
     artifact = load_artifact()
     history = finished_matches_frame()
@@ -37,7 +75,7 @@ def predict_upcoming() -> int:
         with conn.cursor() as cur:
             cur.execute(
                 """
-                SELECT m.id, t1.name AS team1, t2.name AS team2, m.scheduled_at
+                SELECT m.id, t1.name AS team1, t2.name AS team2, m.scheduled_at, m.best_of
                 FROM matches m
                 JOIN teams t1 ON t1.id = m.team1_id
                 JOIN teams t2 ON t2.id = m.team2_id
@@ -50,14 +88,13 @@ def predict_upcoming() -> int:
             for row in upcoming:
                 when = row["scheduled_at"] or now
                 when_ts = pd.Timestamp(when)
-                feat = snapshot_for_upcoming(history, row["team1"], row["team2"], when_ts)
-                p1 = predict_proba(artifact, feat)
+                feat = snapshot_for_upcoming(history, row["team1"], row["team2"], when_ts, row["best_of"] or 3)
+                p1, known = _calibrated_proba(artifact, feat)
                 p2 = 1.0 - p1
-                top = [
-                    {"name": "elo_diff", "value": round(feat["elo_diff"], 2), "impact": "favors_team1" if feat["elo_diff"] > 0 else "favors_team2"},
-                    {"name": "form5_diff", "value": round(feat["form5_diff"], 3), "impact": "favors_team1" if feat["form5_diff"] > 0 else "favors_team2"},
-                    {"name": "h2h_diff", "value": round(feat["h2h_diff"], 3), "impact": "favors_team1" if feat["h2h_diff"] > 0 else "favors_team2"},
-                ]
+                top = _top_features(artifact, feat)
+                note = ""
+                if known < MIN_HISTORY:
+                    note = f" Мало истории (у менее известной команды {known} матчей) — прогноз приближен к 50%."
                 cur.execute(
                     """
                     INSERT INTO predictions (
@@ -77,13 +114,13 @@ def predict_upcoming() -> int:
                     """,
                     (
                         row["id"],
-                        MODEL_NAME,
+                        artifact["model_name"],
                         MODEL_VERSION,
                         p1,
                         p2,
-                        _confidence(p1),
+                        "low" if known < 3 else _confidence(p1),
                         json.dumps(top),
-                        _explanation(row["team1"], row["team2"], p1, feat),
+                        _explanation(row["team1"], row["team2"], p1, feat) + note,
                     ),
                 )
                 written += 1

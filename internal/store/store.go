@@ -120,7 +120,7 @@ WHERE match_id = $1
 func (s *Store) LatestMetrics(ctx context.Context) (model.ModelMetrics, error) {
 	row := s.pool.QueryRow(ctx, `
 SELECT model_name, model_version, trained_at, n_train, n_test,
-       accuracy, log_loss, brier, elo_favorite_accuracy
+       accuracy, log_loss, brier, elo_favorite_accuracy, extra
 FROM model_metrics
 ORDER BY trained_at DESC, id DESC
 LIMIT 1
@@ -128,7 +128,7 @@ LIMIT 1
 	var m model.ModelMetrics
 	err := row.Scan(
 		&m.ModelName, &m.ModelVersion, &m.TrainedAt, &m.NTrain, &m.NTest,
-		&m.Accuracy, &m.LogLoss, &m.Brier, &m.EloFavoriteAccuracy,
+		&m.Accuracy, &m.LogLoss, &m.Brier, &m.EloFavoriteAccuracy, &m.Extra,
 	)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return model.ModelMetrics{}, ErrNotFound

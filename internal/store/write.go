@@ -170,6 +170,7 @@ func (s *Store) UpsertEloPrediction(ctx context.Context, matchID, team1ID, team2
 			    top_features = EXCLUDED.top_features,
 			    explanation = EXCLUDED.explanation,
 			    created_at = now()
+			WHERE predictions.model_name = 'elo_sync'
 	`, matchID, p1, p2, conf, string(raw), explain)
 	return err
 }

@@ -4,7 +4,11 @@
 
 Прогнозы учебные, не ставки. **HLTV не парсим** (ToS п. 2.2). Календарь upcoming — [PandaScore](https://developers.pandascore.co/) или локальные фикстуры. Подробности: [data/ATTRIBUTION.md](data/ATTRIBUTION.md).
 
-Документы дисциплины «Управление проектами»: [docs/pm](docs/pm). Интерактивный контракт: **Swagger UI** `/swagger/` (спека [docs/openapi.yaml](docs/openapi.yaml)).
+Документы дисциплины «Управление проектами»: [docs/pm](docs/pm). Отчёт на защиту: [docs/pm/07-otchet-na-zashchitu.md](docs/pm/07-otchet-na-zashchitu.md). Интерактивный контракт: **Swagger UI** `/swagger/` (спека [docs/openapi.yaml](docs/openapi.yaml)).
+
+## Дашборд и модель XGBoost
+
+`http://localhost:<PORT>/` — страница с живыми матчами PandaScore (топ-60), вероятностями **XGBoost**, объяснением прогноза (SHAP по признакам) и сравнением Elo / logreg / XGBoost. Обучение: `make train` (обучает logreg и XGBoost, прод-модель — XGBoost); `docker compose up` поднимает `ml`-воркер, который каждые 10 минут пересчитывает прогнозы для новых матчей.
 
 ## Что готово (недели 1–4)
 
@@ -14,7 +18,7 @@
 - Baseline: Elo + логистическая регрессия (хронологический split, без утечки post-match статы).
 - `python -m ml sync` — PandaScore или `data/fixtures/upcoming.json`.
 
-Ещё не делали (недели 5+): XGBoost, фронтенд, полноценная репетиция защиты.
+Ещё не делали (недели 5+): реальный датасет, тир турнира и состав, полноценный фронтенд, полноценная репетиция защиты.
 
 ## Быстрый старт
 

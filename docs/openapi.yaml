@@ -444,6 +444,12 @@ components:
         log_loss: { type: number }
         brier: { type: number }
         elo_favorite_accuracy: { type: number }
+        extra:
+          type: object
+          description: >
+            Сравнение моделей (`comparison`: Elo / logreg / XGBoost), список признаков,
+            `feature_importance` (gain XGBoost), `active_model`.
+          additionalProperties: true
         disclaimer: { type: string }
         data_sources:
           type: array

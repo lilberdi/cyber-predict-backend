@@ -13,11 +13,14 @@ import time
 from ml.config import ARTIFACTS_DIR, PANDASCORE_TOKEN, XGB_MODEL_NAME
 from ml.history_pandascore import ingest, ingest_recent
 from ml.load_history import MIN_REAL_MATCHES, finished_matches_frame, load_csv
+from ml.player_rating import update_ratings
 from ml.predict import predict_upcoming
+from ml.rosters import sync_rosters
 from ml.train import train
 
 INTERVAL_SECONDS = int(os.getenv("PREDICT_INTERVAL_SECONDS", "600"))
 INGEST_EVERY = int(os.getenv("INGEST_INTERVAL_SECONDS", str(6 * 3600)))
+ROSTER_EVERY = int(os.getenv("ROSTER_INTERVAL_SECONDS", str(3600)))
 RETRAIN_EVERY = int(os.getenv("RETRAIN_INTERVAL_SECONDS", str(24 * 3600)))
 
 
@@ -32,8 +35,18 @@ def _bootstrap() -> None:
         print(f"trained {report['model_name']} acc={report['accuracy']:.3f}", flush=True)
 
 
+def _players_cycle() -> None:
+    """Rosters and player ratings must never block match predictions."""
+    try:
+        print(f"rosters: {sync_rosters()}", flush=True)
+        print(f"players rated: {update_ratings()}", flush=True)
+    except Exception as exc:
+        print(f"players cycle: {exc}", flush=True)
+
+
 def run() -> None:
     last_ingest = last_train = time.monotonic()
+    last_roster = -ROSTER_EVERY  # sync rosters on the first cycle
     ready = False
     while True:
         try:
@@ -44,6 +57,9 @@ def run() -> None:
             if PANDASCORE_TOKEN and now - last_ingest >= INGEST_EVERY:
                 print(f"ingest recent: {ingest_recent()}", flush=True)
                 last_ingest = now
+            if PANDASCORE_TOKEN and now - last_roster >= ROSTER_EVERY:
+                last_roster = now
+                _players_cycle()
             if now - last_train >= RETRAIN_EVERY:
                 report = train()
                 print(f"retrained acc={report['accuracy']:.3f}", flush=True)

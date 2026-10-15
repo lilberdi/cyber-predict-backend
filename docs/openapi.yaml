@@ -33,6 +33,8 @@ tags:
     description: Проверка, что процесс жив и видит базу. Нужны для Docker, демо и мониторинга.
   - name: Матчи
     description: Календарь и карточка встречи. Основной список для главной страницы UI.
+  - name: Игроки
+    description: Составы, трансферы и Team Impact Rating игроков
   - name: Прогнозы
     description: Вероятность победы по конкретному матчу. Пишет Python, отдаёт Gin.
   - name: Модель
@@ -203,6 +205,133 @@ paths:
                 $ref: "#/components/schemas/ErrorResponse"
               example:
                 error: { code: not_found, message: match not found }
+        "500":
+          description: Ошибка чтения PostgreSQL
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /api/v1/rankings/players:
+    get:
+      tags: [Игроки]
+      operationId: rankPlayers
+      summary: Рейтинг игроков (Team Impact Rating)
+      description: |
+        **Что это.** Elo игрока, посчитанное только по результатам команд, пока игрок в составе.
+        Сила команды = среднее по пятёрке, поэтому трансфер меняет силу обеих команд. Индивидуальную
+        игру (K/D, ADR) рейтинг не оценивает: этих данных у нас нет.
+
+        **Важно.** Рейтинг стартует с Elo команды на момент первого появления игрока в нашей базе
+        (`rating_is_seed: true`, пока нет оценённых матчей). Используйте `min_games`, чтобы скрыть
+        новичков без истории.
+      parameters:
+        - name: limit
+          in: query
+          description: По умолчанию 50, максимум 200.
+          schema: { type: integer, default: 50, minimum: 1, maximum: 200 }
+        - name: min_games
+          in: query
+          description: Минимум оценённых матчей (по умолчанию 0).
+          schema: { type: integer, default: 0, minimum: 0 }
+      responses:
+        "200":
+          description: Игроки по убыванию рейтинга
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PlayerListResponse"
+        "500":
+          description: Ошибка чтения PostgreSQL
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /api/v1/players/{id}:
+    get:
+      tags: [Игроки]
+      operationId: getPlayer
+      summary: Карточка игрока
+      description: Профиль, текущая команда, рейтинг, последние 50 изменений рейтинга и история команд.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer, format: int64 }
+      responses:
+        "200":
+          description: Игрок
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PlayerDetailResponse"
+        "404":
+          description: Не найдено
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Ошибка чтения PostgreSQL
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /api/v1/teams/{id}:
+    get:
+      tags: [Игроки]
+      operationId: getTeam
+      summary: Карточка команды с текущим составом
+      description: |
+        Elo команды и текущий состав из PandaScore (в списке могут быть запасные).
+        История составов ведётся с момента запуска отслеживания.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer, format: int64 }
+      responses:
+        "200":
+          description: Команда
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TeamDetailResponse"
+        "404":
+          description: Не найдено
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Ошибка чтения PostgreSQL
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /api/v1/transfers:
+    get:
+      tags: [Игроки]
+      operationId: listTransfers
+      summary: Последние трансферы
+      description: |
+        Изменения составов: `join` (появился в отслеживаемой команде), `leave` (покинул команду),
+        `transfer` (из команды в команду). Первый снимок составов в ленту не попадает.
+      parameters:
+        - name: limit
+          in: query
+          description: По умолчанию 50, максимум 100.
+          schema: { type: integer, default: 50, minimum: 1, maximum: 100 }
+      responses:
+        "200":
+          description: Изменения, новые сверху
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TransferListResponse"
         "500":
           description: Ошибка чтения PostgreSQL
           content:
@@ -449,6 +578,77 @@ components:
         name: { type: string, example: Team Spirit }
         slug: { type: string, nullable: true }
         image_url: { type: string, nullable: true }
+    Player:
+      type: object
+      required: [id, nickname, rated_matches, rating_is_seed]
+      properties:
+        id: { type: integer, format: int64 }
+        nickname: { type: string, example: ZywOo }
+        slug: { type: string, nullable: true }
+        first_name: { type: string, nullable: true }
+        last_name: { type: string, nullable: true }
+        nationality: { type: string, nullable: true, example: FR, description: Код страны ISO }
+        image_url: { type: string, nullable: true }
+        team: { $ref: "#/components/schemas/Team" }
+        joined_at: { type: string, format: date-time, description: Когда мы впервые увидели игрока в этой команде }
+        rating: { type: number, nullable: true, example: 1523.4 }
+        rated_matches: { type: integer, description: Сколько матчей учтено в рейтинге }
+        rating_is_seed: { type: boolean, description: true - рейтинг ещё равен стартовому (Elo команды) }
+        rank: { type: integer, description: Место в выдаче рейтинга }
+    RatingPoint:
+      type: object
+      properties:
+        match_id: { type: integer, format: int64 }
+        played_at: { type: string, format: date-time }
+        team_id: { type: integer, format: int64 }
+        rating_after: { type: number }
+        delta: { type: number }
+    RosterStint:
+      type: object
+      properties:
+        team: { $ref: "#/components/schemas/Team" }
+        joined_at: { type: string, format: date-time }
+        left_at: { type: string, format: date-time, nullable: true }
+    PlayerDetail:
+      allOf:
+        - $ref: "#/components/schemas/Player"
+        - type: object
+          properties:
+            rating_history: { type: array, items: { $ref: "#/components/schemas/RatingPoint" } }
+            teams: { type: array, items: { $ref: "#/components/schemas/RosterStint" } }
+    TeamDetail:
+      allOf:
+        - $ref: "#/components/schemas/Team"
+        - type: object
+          properties:
+            elo: { type: number, nullable: true }
+            elo_matches: { type: integer }
+            roster: { type: array, items: { $ref: "#/components/schemas/Player" } }
+            roster_note: { type: string }
+    Transfer:
+      type: object
+      properties:
+        player: { $ref: "#/components/schemas/Player" }
+        kind: { type: string, enum: [join, leave, transfer] }
+        from_team: { $ref: "#/components/schemas/Team" }
+        to_team: { $ref: "#/components/schemas/Team" }
+        changed_at: { type: string, format: date-time }
+    PlayerListResponse:
+      type: object
+      properties:
+        data: { type: array, items: { $ref: "#/components/schemas/Player" } }
+    PlayerDetailResponse:
+      type: object
+      properties:
+        data: { $ref: "#/components/schemas/PlayerDetail" }
+    TeamDetailResponse:
+      type: object
+      properties:
+        data: { $ref: "#/components/schemas/TeamDetail" }
+    TransferListResponse:
+      type: object
+      properties:
+        data: { type: array, items: { $ref: "#/components/schemas/Transfer" } }
     Score:
       type: object
       description: Счёт по картам. Для upcoming оба поля null.

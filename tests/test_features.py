@@ -123,3 +123,39 @@ def test_elo_newcomer_moves_faster_and_sweep_counts_more():
     close.apply("A", "B", True, margin=1 / 3)
     sweep.apply("A", "B", True, margin=1.0)
     assert sweep.ratings["A"] > close.ratings["A"]
+
+
+def test_roster_plan_join_transfer_leave():
+    from ml.rosters import Op, plan_changes
+
+    open_rows = {"a": 1, "b": 1, "c": 1}
+    desired = {"a": [1], "b": [2], "d": [2]}
+    ops = plan_changes(open_rows, desired, tracked={1, 2})
+    assert Op("transfer", "b", 1, 2) in ops
+    assert Op("join", "d", None, 2) in ops
+    assert Op("leave", "c", 1, None) in ops
+    assert not any(o.player == "a" for o in ops)
+
+
+def test_roster_plan_keeps_player_listed_by_two_teams_and_guards_empty_team():
+    from ml.rosters import Op, plan_changes
+
+    assert plan_changes({"a": 1}, {"a": [2, 1]}, {1, 2}) == []
+    assert plan_changes({"a": 1}, {}, {1}, skip_leave_teams={1}) == []
+    assert plan_changes({"a": 9}, {}, {1}) == []  # untracked team: no verdict
+    assert plan_changes({"a": 1}, {}, {1}) == [Op("leave", "a", 1, None)]
+
+
+def test_player_rating_transfer_changes_team_strength_and_conserves_points():
+    from ml.player_rating import pick_lineup, rate_match
+
+    team1 = [(i, 1500.0, 30) for i in range(5)]
+    team2 = [(10 + i, 1500.0, 30) for i in range(5)]
+    d = rate_match(team1, team2, True)
+    assert all(v > 0 for k, v in d.items() if k < 10) and all(v < 0 for k, v in d.items() if k >= 10)
+    assert abs(sum(d.values())) < 1e-9  # equal K: symmetric
+    star = [(0, 1900.0, 30)] + team1[1:]
+    assert rate_match(star, team2, True)[0] < d[0]  # favourite wins -> smaller gain
+    newcomer = [(99, 1500.0, 0)] + team1[1:]
+    assert rate_match(newcomer, team2, True)[99] > d[1]  # newcomers move faster
+    assert len(pick_lineup([(i, 1500.0 + i, i) for i in range(8)])) == 5

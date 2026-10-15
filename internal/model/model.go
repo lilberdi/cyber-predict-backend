@@ -89,3 +89,56 @@ type ErrorBody struct {
 	Code    string `json:"code"`
 	Message string `json:"message"`
 }
+
+// Player is a rostered player with his Team Impact Rating (Elo from team results).
+type Player struct {
+	ID           int64      `json:"id"`
+	Nickname     string     `json:"nickname"`
+	Slug         *string    `json:"slug,omitempty"`
+	FirstName    *string    `json:"first_name,omitempty"`
+	LastName     *string    `json:"last_name,omitempty"`
+	Nationality  *string    `json:"nationality,omitempty"`
+	ImageURL     *string    `json:"image_url,omitempty"`
+	Team         *Team      `json:"team,omitempty"`
+	JoinedAt     *time.Time `json:"joined_at,omitempty"`
+	Rating       *float64   `json:"rating,omitempty"`
+	RatedMatches int        `json:"rated_matches"`
+	RatingIsSeed bool       `json:"rating_is_seed"`
+	Rank         *int       `json:"rank,omitempty"`
+}
+
+type RatingPoint struct {
+	MatchID     int64     `json:"match_id"`
+	PlayedAt    time.Time `json:"played_at"`
+	TeamID      int64     `json:"team_id"`
+	RatingAfter float64   `json:"rating_after"`
+	Delta       float64   `json:"delta"`
+}
+
+type RosterStint struct {
+	Team     Team       `json:"team"`
+	JoinedAt time.Time  `json:"joined_at"`
+	LeftAt   *time.Time `json:"left_at,omitempty"`
+}
+
+type PlayerDetail struct {
+	Player
+	History []RatingPoint `json:"rating_history"`
+	Teams   []RosterStint `json:"teams"`
+}
+
+type TeamDetail struct {
+	Team
+	Elo        *float64 `json:"elo,omitempty"`
+	EloMatches int      `json:"elo_matches"`
+	Roster     []Player `json:"roster"`
+	RosterNote string   `json:"roster_note"`
+}
+
+type Transfer struct {
+	Player    Player    `json:"player"`
+	Kind      string    `json:"kind"`
+	FromTeam  *Team     `json:"from_team,omitempty"`
+	ToTeam    *Team     `json:"to_team,omitempty"`
+	ChangedAt time.Time `json:"changed_at"`
+}

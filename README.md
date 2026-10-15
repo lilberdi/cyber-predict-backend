@@ -4,7 +4,7 @@
 
 Прогнозы учебные, не ставки. **HLTV не парсим** (ToS п. 2.2). Календарь upcoming — [PandaScore](https://developers.pandascore.co/) или локальные фикстуры. Подробности: [data/ATTRIBUTION.md](data/ATTRIBUTION.md).
 
-Документы дисциплины «Управление проектами»: [docs/pm](docs/pm). Отчёт на защиту: [docs/pm/07-otchet-na-zashchitu.md](docs/pm/07-otchet-na-zashchitu.md). Интерактивный контракт: **Swagger UI** `/swagger/` (спека [docs/openapi.yaml](docs/openapi.yaml)).
+Документы дисциплины «Управление проектами»: [docs/pm](docs/pm). Отчёт на защиту: [docs/pm/07-otchet-na-zashchitu.md](docs/pm/07-otchet-na-zashchitu.md). Для фронтенда: [docs/frontend/README.md](docs/frontend/README.md). Интерактивный контракт: **Swagger UI** `/swagger/` (спека [docs/openapi.yaml](docs/openapi.yaml)).
 
 ## Модель XGBoost
 

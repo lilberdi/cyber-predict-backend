@@ -6,6 +6,8 @@
 export interface ApiError {
   code: 'not_found' | 'bad_request' | 'db_error' | string
   message: string
+  /** Только у 429 (POST /matches/refresh): через сколько секунд повторить. */
+  retry_after_seconds?: number
 }
 export interface ApiOk<T> { data: T }
 export interface ApiFail { error: ApiError }
@@ -75,9 +77,11 @@ export interface Match {
   team2: Team
   score: Score
   winner_team_id?: number
+  /** Матч закрыт, но не засчитывается: отменён, технический результат или ничья. Показывать с пометкой «не засчитан». Счёта, победителя и prediction_correct у такого матча нет. */
+  voided_reason?: 'canceled' | 'forfeit' | 'draw'
   /** Нет, пока прогноз не посчитан. */
   prediction?: Prediction
-  /** Только в /matches/finished. */
+  /** Только в /matches/finished и refresh.newly_finished; у voided-матчей и прогнозов, сделанных после старта, не заполняется. */
   prediction_correct?: boolean
 }
 
@@ -206,3 +210,18 @@ export interface RosterStint { team: Team; joined_at: string; left_at?: string |
 export interface PlayerDetail extends Player { rating_history: RatingPoint[]; teams: RosterStint[] }
 export interface TeamDetail extends Team { elo?: number | null; elo_matches: number; roster: Player[]; roster_note: string }
 export interface Transfer { player: Player; kind: 'join' | 'leave' | 'transfer'; from_team?: Team; to_team?: Team; changed_at: string }
+
+// ---- POST /matches/refresh (кнопка «Обновить матчи») ----
+// 429 { error: { code: 'cooldown', retry_after_seconds } } + заголовок Retry-After: не чаще раза в 60 секунд на весь сервис.
+// 502 upstream_error, 503 pandascore_not_configured. После 200 перезапросите /matches/finished и /model/live-accuracy.
+export interface RefreshResult {
+  checked: number // сколько просроченных матчей проверено
+  finished: number // стали сыгранными
+  voided: number // закрыты как «не засчитан»
+  running: number
+  rescheduled: number
+  still_pending: number // итога ещё нет
+  missing: number // PandaScore не вернул матч (входит в still_pending)
+  cooldown_seconds: number
+  newly_finished: Match[] // сыгранные и не засчитанные, новые сверху
+}

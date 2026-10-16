@@ -159,3 +159,14 @@ def test_player_rating_transfer_changes_team_strength_and_conserves_points():
     newcomer = [(99, 1500.0, 0)] + team1[1:]
     assert rate_match(newcomer, team2, True)[99] > d[1]  # newcomers move faster
     assert len(pick_lineup([(i, 1500.0 + i, i) for i in range(8)])) == 5
+
+
+def test_started_match_forecast_is_frozen():
+    from ml.predict import _UPSERT_PREDICTION, _UPSERT_PREDICTION_FROZEN, is_started
+
+    now = datetime(2026, 10, 16, 12, 0, tzinfo=timezone.utc)
+    assert is_started(now - timedelta(minutes=1), now)
+    assert not is_started(now + timedelta(minutes=1), now)
+    assert not is_started(None, now)
+    assert "DO NOTHING" in _UPSERT_PREDICTION_FROZEN and "created_at" not in _UPSERT_PREDICTION_FROZEN
+    assert "created_at = now()" in _UPSERT_PREDICTION

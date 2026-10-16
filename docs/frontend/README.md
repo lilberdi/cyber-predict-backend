@@ -44,6 +44,7 @@ export default {
 | GET | `/api/v1/matches/{id}` | Карточка матча |
 | GET | `/api/v1/predictions/{match_id}` | Только прогноз (404, если ещё не посчитан) |
 | GET | `/api/v1/matches/finished?limit=50` | «Факт против прогноза»: сыгранные матчи с прогнозом, сделанным до старта |
+| POST | `/api/v1/matches/refresh` | Кнопка «Обновить матчи»: подтягивает итоги прошедших матчей. Не чаще раза в 60 секунд (429 с `retry_after_seconds`); после 200 перезапросить `/matches/finished` и `/model/live-accuracy` |
 | GET | `/api/v1/rankings/players?limit=50&min_games=0` | Рейтинг игроков (Team Impact Rating); `min_games` скрывает новичков без истории |
 | GET | `/api/v1/players/{id}` | Карточка игрока: рейтинг, график `rating_history`, история команд `teams` |
 | GET | `/api/v1/teams/{id}` | Команда: Elo и текущий состав (в списке бывают запасные) |

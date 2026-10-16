@@ -49,6 +49,9 @@ func main() {
 		RequireBoth: cfg.SyncRequireBoth != "false",
 	}
 
+	client := job.Client
+	refresher := &syncjob.Refresher{Store: db, Client: client}
+
 	ctxRun, stopJobs := context.WithCancel(context.Background())
 	defer stopJobs()
 	if every, err := syncjob.ParseInterval(cfg.SyncInterval); err != nil {
@@ -57,7 +60,7 @@ func main() {
 		go job.Loop(ctxRun, every)
 	}
 
-	router := handler.NewRouter(&handler.API{Store: db, Sync: job, SyncSecret: cfg.SyncSecret}, cfg.CORSOrigin)
+	router := handler.NewRouter(&handler.API{Store: db, Sync: job, Refresher: refresher, SyncSecret: cfg.SyncSecret}, cfg.CORSOrigin)
 	srv := &http.Server{
 		Addr:              ":" + cfg.Port,
 		Handler:           router,

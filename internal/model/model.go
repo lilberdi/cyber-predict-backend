@@ -38,20 +38,22 @@ type Prediction struct {
 }
 
 type Match struct {
-	ID             int64       `json:"id"`
-	ExternalID     *string     `json:"external_id,omitempty"`
-	Source         string      `json:"source"`
-	Status         string      `json:"status"`
-	BestOf         *int        `json:"best_of,omitempty"`
-	ScheduledAt    *time.Time  `json:"scheduled_at,omitempty"`
-	Tournament     *string     `json:"tournament,omitempty"`
-	TournamentTier *string     `json:"tournament_tier,omitempty"`
-	Team1          Team        `json:"team1"`
-	Team2          Team        `json:"team2"`
-	Score          Score       `json:"score"`
-	WinnerTeamID   *int64      `json:"winner_team_id,omitempty"`
-	Prediction     *Prediction `json:"prediction,omitempty"`
-	// PredictionCorrect is set only for finished matches that had a pre-match prediction.
+	ID             int64      `json:"id"`
+	ExternalID     *string    `json:"external_id,omitempty"`
+	Source         string     `json:"source"`
+	Status         string     `json:"status"`
+	BestOf         *int       `json:"best_of,omitempty"`
+	ScheduledAt    *time.Time `json:"scheduled_at,omitempty"`
+	Tournament     *string    `json:"tournament,omitempty"`
+	TournamentTier *string    `json:"tournament_tier,omitempty"`
+	Team1          Team       `json:"team1"`
+	Team2          Team       `json:"team2"`
+	Score          Score      `json:"score"`
+	WinnerTeamID   *int64     `json:"winner_team_id,omitempty"`
+	// VoidedReason is set for finished matches that do not count ("canceled", "forfeit", "draw").
+	VoidedReason *string     `json:"voided_reason,omitempty"`
+	Prediction   *Prediction `json:"prediction,omitempty"`
+	// PredictionCorrect is set only for counted finished matches that had a pre-match prediction.
 	PredictionCorrect *bool `json:"prediction_correct,omitempty"`
 }
 
@@ -88,6 +90,8 @@ type ModelMetrics struct {
 type ErrorBody struct {
 	Code    string `json:"code"`
 	Message string `json:"message"`
+	// RetryAfterSeconds is set on 429 responses.
+	RetryAfterSeconds *int `json:"retry_after_seconds,omitempty"`
 }
 
 // Player is a rostered player with his Team Impact Rating (Elo from team results).

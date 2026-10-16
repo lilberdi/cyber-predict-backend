@@ -70,7 +70,7 @@ def finished_matches_frame(source: str | None = None) -> pd.DataFrame:
     with connect() as conn:
         with conn.cursor() as cur:
             if source is None:
-                cur.execute("SELECT count(*) AS n FROM matches WHERE status='finished' AND source='pandascore'")
+                cur.execute("SELECT count(*) AS n FROM matches WHERE status='finished' AND source='pandascore' AND voided_reason IS NULL")
                 source = "pandascore" if cur.fetchone()["n"] >= MIN_REAL_MATCHES else "dataset"
             cur.execute(
                 """
@@ -85,7 +85,7 @@ def finished_matches_frame(source: str | None = None) -> pd.DataFrame:
                 JOIN teams t1 ON t1.id = m.team1_id
                 JOIN teams t2 ON t2.id = m.team2_id
                 JOIN teams tw ON tw.id = m.winner_team_id
-                WHERE m.status = 'finished' AND m.winner_team_id IS NOT NULL AND m.source = %s
+                WHERE m.status = 'finished' AND m.winner_team_id IS NOT NULL AND m.voided_reason IS NULL AND m.source = %s
                 ORDER BY m.scheduled_at
                 """,
                 (source,),

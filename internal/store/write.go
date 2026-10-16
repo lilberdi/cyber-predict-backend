@@ -171,6 +171,8 @@ func (s *Store) UpsertEloPrediction(ctx context.Context, matchID, team1ID, team2
 			    explanation = EXCLUDED.explanation,
 			    created_at = now()
 			WHERE predictions.model_name = 'elo_sync'
+			  AND EXISTS (SELECT 1 FROM matches m WHERE m.id = predictions.match_id
+			              AND (m.scheduled_at IS NULL OR m.scheduled_at > now()))
 	`, matchID, p1, p2, conf, string(raw), explain)
 	return err
 }

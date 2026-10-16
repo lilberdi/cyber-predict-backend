@@ -11,6 +11,7 @@ import (
 type API struct {
 	Store      *store.Store
 	Sync       *syncjob.Job
+	Refresher  *syncjob.Refresher
 	SyncSecret string
 }
 
@@ -31,6 +32,7 @@ func NewRouter(a *API, corsOrigin string) *gin.Engine {
 		{
 			matches.GET("/upcoming", a.ListUpcoming)
 			matches.GET("/finished", a.ListFinished)
+			matches.POST("/refresh", a.RefreshMatches)
 			matches.GET("/:id", a.GetMatch)
 		}
 		v1.GET("/teams/:id", a.GetTeam)

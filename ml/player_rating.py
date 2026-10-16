@@ -96,7 +96,7 @@ def update_ratings() -> dict:
                 SELECT m.id, m.team1_id, m.team2_id, m.winner_team_id, m.scheduled_at,
                        m.score1, m.score2, m.tournament_tier
                 FROM matches m
-                WHERE m.status = 'finished' AND m.winner_team_id IS NOT NULL AND m.scheduled_at IS NOT NULL
+                WHERE m.status = 'finished' AND m.winner_team_id IS NOT NULL AND m.voided_reason IS NULL AND m.scheduled_at IS NOT NULL
                   AND m.scheduled_at >= (SELECT min(joined_at) FROM team_rosters)
                   AND NOT EXISTS (SELECT 1 FROM player_rating_history h WHERE h.match_id = m.id)
                 ORDER BY m.scheduled_at, m.id

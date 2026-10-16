@@ -48,7 +48,7 @@ func (s *Store) Ping(ctx context.Context) error {
 const matchSelect = `
 SELECT
     m.id, m.external_id, m.source, m.status, m.best_of, m.scheduled_at,
-    m.tournament, m.tournament_tier, m.score1, m.score2, m.winner_team_id,
+    m.tournament, m.tournament_tier, m.score1, m.score2, m.winner_team_id, m.voided_reason,
     t1.id, t1.name, t1.slug, t1.image_url,
     t2.id, t2.name, t2.slug, t2.image_url,
     p.model_name, p.model_version, p.p_team1_win, p.p_team2_win,
@@ -90,7 +90,7 @@ func (s *Store) ListFinishedWithPrediction(ctx context.Context, limit int) ([]mo
 		limit = 50
 	}
 	rows, err := s.pool.Query(ctx, matchSelect+`
-WHERE m.status = 'finished' AND m.winner_team_id IS NOT NULL
+WHERE m.status = 'finished' AND (m.winner_team_id IS NOT NULL OR m.voided_reason IS NOT NULL)
   AND p.id IS NOT NULL AND p.created_at <= m.scheduled_at
 ORDER BY m.scheduled_at DESC, m.id DESC
 LIMIT $1
@@ -106,15 +106,23 @@ LIMIT $1
 		if err != nil {
 			return nil, err
 		}
-		if m.Prediction != nil && m.WinnerTeamID != nil {
-			favT1 := m.Prediction.PTeam1Win >= 0.5
-			won1 := *m.WinnerTeamID == m.Team1.ID
-			ok := favT1 == won1
-			m.PredictionCorrect = &ok
-		}
+		MarkPredictionCorrect(&m)
 		out = append(out, m)
 	}
 	return out, rows.Err()
+}
+
+// MarkPredictionCorrect sets PredictionCorrect for a counted match with a pre-match prediction.
+// Voided matches (canceled, forfeit, draw) and predictions made after the start stay unmarked.
+func MarkPredictionCorrect(m *model.Match) {
+	if m.Prediction == nil || m.WinnerTeamID == nil || m.VoidedReason != nil || m.Status != "finished" {
+		return
+	}
+	if m.ScheduledAt != nil && m.Prediction.CreatedAt.After(*m.ScheduledAt) {
+		return
+	}
+	ok := (m.Prediction.PTeam1Win >= 0.5) == (*m.WinnerTeamID == m.Team1.ID)
+	m.PredictionCorrect = &ok
 }
 
 // LiveAccuracy scores stored pre-match predictions against real results.
@@ -125,7 +133,7 @@ SELECT p.model_name, COALESCE(p.confidence, 'unknown'),
        m.scheduled_at
 FROM matches m
 JOIN predictions p ON p.match_id = m.id
-WHERE m.status = 'finished' AND m.winner_team_id IS NOT NULL
+WHERE m.status = 'finished' AND m.winner_team_id IS NOT NULL AND m.voided_reason IS NULL
   AND p.created_at <= m.scheduled_at AND p.p_team1_win <> 0.5
 `)
 	if err != nil {
@@ -233,7 +241,7 @@ func scanMatch(row rowScanner) (model.Match, error) {
 	)
 	err := row.Scan(
 		&m.ID, &m.ExternalID, &m.Source, &m.Status, &m.BestOf, &m.ScheduledAt,
-		&m.Tournament, &m.TournamentTier, &m.Score.Team1, &m.Score.Team2, &m.WinnerTeamID,
+		&m.Tournament, &m.TournamentTier, &m.Score.Team1, &m.Score.Team2, &m.WinnerTeamID, &m.VoidedReason,
 		&m.Team1.ID, &m.Team1.Name, &m.Team1.Slug, &m.Team1.ImageURL,
 		&m.Team2.ID, &m.Team2.Name, &m.Team2.Slug, &m.Team2.ImageURL,
 		&predName, &predVer, &p1, &p2, &confidence, &top, &explain, &created,

@@ -67,6 +67,34 @@ def _top_features(artifact: dict, feat: dict, limit: int = 5) -> list[dict]:
     ][:limit]
 
 
+_INSERT_PREDICTION = """
+    INSERT INTO predictions (
+        match_id, model_name, model_version,
+        p_team1_win, p_team2_win, confidence, top_features, explanation
+    )
+    VALUES (%s, %s, %s, %s, %s, %s, %s::jsonb, %s)
+"""
+# Before the start a forecast is refreshed (created_at moves forward, still before the start).
+_UPSERT_PREDICTION = _INSERT_PREDICTION + """
+    ON CONFLICT (match_id) DO UPDATE
+        SET model_name = EXCLUDED.model_name,
+            model_version = EXCLUDED.model_version,
+            p_team1_win = EXCLUDED.p_team1_win,
+            p_team2_win = EXCLUDED.p_team2_win,
+            confidence = EXCLUDED.confidence,
+            top_features = EXCLUDED.top_features,
+            explanation = EXCLUDED.explanation,
+            created_at = now()
+"""
+# After the start the forecast is frozen: rewriting it would stamp it "after the match began"
+# and drop it from the live accuracy check.
+_UPSERT_PREDICTION_FROZEN = _INSERT_PREDICTION + " ON CONFLICT (match_id) DO NOTHING"
+
+
+def is_started(scheduled_at, now) -> bool:
+    return scheduled_at is not None and scheduled_at <= now
+
+
 def predict_upcoming() -> int:
     artifact = load_artifact()
     history = finished_matches_frame()
@@ -97,22 +125,7 @@ def predict_upcoming() -> int:
                 if known < MIN_HISTORY:
                     note = f" Мало истории (у менее известной команды {known} матчей) — прогноз приближен к 50%."
                 cur.execute(
-                    """
-                    INSERT INTO predictions (
-                        match_id, model_name, model_version,
-                        p_team1_win, p_team2_win, confidence, top_features, explanation
-                    )
-                    VALUES (%s, %s, %s, %s, %s, %s, %s::jsonb, %s)
-                    ON CONFLICT (match_id) DO UPDATE
-                        SET model_name = EXCLUDED.model_name,
-                            model_version = EXCLUDED.model_version,
-                            p_team1_win = EXCLUDED.p_team1_win,
-                            p_team2_win = EXCLUDED.p_team2_win,
-                            confidence = EXCLUDED.confidence,
-                            top_features = EXCLUDED.top_features,
-                            explanation = EXCLUDED.explanation,
-                            created_at = now()
-                    """,
+                    _UPSERT_PREDICTION_FROZEN if is_started(row["scheduled_at"], now) else _UPSERT_PREDICTION,
                     (
                         row["id"],
                         artifact["model_name"],

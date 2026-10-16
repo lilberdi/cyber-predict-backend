@@ -147,6 +147,10 @@ paths:
         игры (`predictions.created_at <= scheduled_at`), новые сверху. В каждом матче есть
         `winner_team_id` и `prediction_correct` (фаворит модели совпал с победителем).
         Прогнозы, посчитанные после старта, сюда не попадают.
+
+        Сюда же попадают отменённые матчи и технические результаты с `voided_reason`: у них нет
+        счёта и победителя, `prediction_correct` не заполнен, в точность модели они не входят.
+        Показывайте их с пометкой «не засчитан».
       parameters:
         - name: limit
           in: query
@@ -162,6 +166,63 @@ paths:
                 $ref: "#/components/schemas/MatchListResponse"
         "500":
           description: Ошибка чтения PostgreSQL
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /api/v1/matches/refresh:
+    post:
+      tags: [Матчи]
+      operationId: refreshMatches
+      summary: Обновить итоги прошедших матчей
+      description: |
+        **Зачем.** Кнопка «Обновить матчи»: не ждать автозагрузку итогов (раз в 6 часов), а сразу
+        узнать результат матчей, которые уже должны были пройти, и увидеть, угадала ли модель.
+
+        **Что делает.** Берёт матчи со статусом `upcoming`/`running`, у которых время старта прошло
+        больше чем 30 минут назад (до 100 штук, самые старые первыми), и одним запросом к PandaScore
+        получает их состояние:
+        - сыгран: `status=finished`, счёт и `winner_team_id`;
+        - отменён, технический результат (`forfeit`) или ничья: `status=finished`, `voided_reason`
+          (`canceled`, `forfeit`, `draw`), счёта и победителя нет. Такие матчи **не засчитываются**
+          в точность модели и в обучение; показывайте их с пометкой «не засчитан»;
+        - начался: `status=running`;
+        - перенесён: новое `scheduled_at`, остаётся `upcoming`.
+
+        **Лимит.** Не чаще одного раза в 60 секунд на весь сервис (защита квоты PandaScore). Если
+        обновление было недавно, вернётся `429` с `retry_after_seconds` и заголовком `Retry-After`:
+        покажите пользователю таймер и повторите позже. Если проверять нечего (`checked: 0`),
+        запрос к PandaScore не делается и лимит не расходуется.
+
+        **После ответа** перезапросите `GET /matches/finished` и `GET /model/live-accuracy`.
+        `prediction_correct` в `newly_finished` заполнен только у засчитанных матчей с прогнозом,
+        сделанным до старта.
+      responses:
+        "200":
+          description: Обновление выполнено (в том числе если менять было нечего)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RefreshResponse"
+        "429":
+          description: Обновление было недавно
+          headers:
+            Retry-After:
+              description: Через сколько секунд можно повторить
+              schema: { type: integer }
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "502":
+          description: PandaScore не ответил или вернул ошибку
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "503":
+          description: Не задан токен PandaScore
           content:
             application/json:
               schema:
@@ -649,6 +710,26 @@ components:
       type: object
       properties:
         data: { type: array, items: { $ref: "#/components/schemas/Transfer" } }
+    RefreshResult:
+      type: object
+      required: [checked, finished, voided, running, rescheduled, still_pending, missing, cooldown_seconds, newly_finished]
+      properties:
+        checked: { type: integer, description: Сколько матчей проверено (было просроченных) }
+        finished: { type: integer, description: Стали сыгранными }
+        voided: { type: integer, description: Закрыты как «не засчитан» (отмена, технический результат, ничья) }
+        running: { type: integer, description: Перешли в статус running }
+        rescheduled: { type: integer, description: Перенесены на другое время }
+        still_pending: { type: integer, description: Итога ещё нет }
+        missing: { type: integer, description: PandaScore не вернул матч (входит в still_pending) }
+        cooldown_seconds: { type: integer, example: 60 }
+        newly_finished:
+          type: array
+          description: Матчи, закрытые этим обновлением (сыгранные и не засчитанные), новые сверху
+          items: { $ref: "#/components/schemas/Match" }
+    RefreshResponse:
+      type: object
+      properties:
+        data: { $ref: "#/components/schemas/RefreshResult" }
     Score:
       type: object
       description: Счёт по картам. Для upcoming оба поля null.
@@ -697,6 +778,11 @@ components:
         team1: { $ref: "#/components/schemas/Team" }
         team2: { $ref: "#/components/schemas/Team" }
         score: { $ref: "#/components/schemas/Score" }
+        voided_reason:
+          type: string
+          nullable: true
+          enum: [canceled, forfeit, draw]
+          description: Матч закрыт, но не засчитывается (отмена, технический результат, ничья). Показывать с пометкой «не засчитан»; prediction_correct не заполняется
         winner_team_id: { type: integer, format: int64, nullable: true }
         prediction:
           allOf:
@@ -763,6 +849,7 @@ components:
       properties:
         code: { type: string, example: not_found }
         message: { type: string }
+        retry_after_seconds: { type: integer, description: Только у 429 - через сколько секунд повторить }
     ErrorResponse:
       type: object
       required: [error]

@@ -10,7 +10,7 @@
 
 ## Модель XGBoost
 
-Обучение идёт на реальной истории PandaScore: `python -m ml ingest-past` (≈10 тыс. матчей, 2 минуты), затем `make train`. Отчёт с метриками: [docs/pm/09-otchet-realnye-dannye.md](docs/pm/09-otchet-realnye-dannye.md). Прод-модель — **XGBoost** (`make train` обучает также logreg и Elo как baseline и сравнивает их). Прогнозы с SHAP-объяснением отдаёт `GET /api/v1/matches/upcoming`; `docker compose up` поднимает `ml`-воркер, пересчитывающий прогнозы каждые 10 минут. Фронтенд (Vue) живёт отдельно и ходит в этот API (`CORS_ORIGIN`).
+Обучение идёт на реальной истории PandaScore: `python -m ml ingest-past` (≈10 тыс. матчей, 2 минуты), затем `make train`. Отчёт с метриками: [docs/pm/09-otchet-realnye-dannye.md](docs/pm/09-otchet-realnye-dannye.md). Прод-модель — **XGBoost** (`make train` обучает также logreg и Elo как baseline и сравнивает их). Прогнозы с SHAP-объяснением отдаёт `GET /api/v1/matches/upcoming`; `docker compose up` поднимает `ml`-воркер, пересчитывающий прогнозы каждые 10 минут. Фронтенд (React + Vite) живёт отдельно и ходит в этот API (`CORS_ORIGIN`).
 
 ## Что готово (недели 1–4)
 
@@ -19,6 +19,16 @@
 - Календарь PandaScore: `GET/POST /api/v1/jobs/sync-upcoming` и тикер раз в час, фильтр топ-60 команд.
 - Baseline: Elo + логистическая регрессия (хронологический split, без утечки post-match статы).
 - `python -m ml sync` — PandaScore или `data/fixtures/upcoming.json`.
+
+## Что добавлено 06.11.2026
+
+- **Рейтинг команд** `GET /api/v1/rankings/teams`: место, Elo, изменение за 7 дней, форма W/L за 5 матчей (фильтры `min_games`, `active_days`).
+- **История Elo команды**: таблица `team_elo_history` (миграция `0004`) заполняется при `ml train`; `GET /api/v1/teams/{id}` теперь отдаёт `elo_history` и `form`.
+- **Личные встречи** `GET /api/v1/matches/{id}/h2h`: счёт встреч за 365 дней, последние 5 встреч и форма обеих команд до начала матча.
+- **Неожиданные результаты** `GET /api/v1/matches/upsets?min_prob=0.75`: уверенный фаворит модели проиграл, плюс доля таких ошибок.
+- **Сравнение метрик после переобучения**: `python -m ml compare` печатает Markdown «было 16.10 / стало» и точность в бою из БД.
+
+После обновления: `docker compose up -d --build` (миграция применится сама), затем `docker compose run --rm ml python -m ml train`, чтобы заполнить историю Elo.
 
 Ещё не делали (недели 5+): реальный датасет, тир турнира и состав, полноценный фронтенд, полноценная репетиция защиты.
 
@@ -59,6 +69,7 @@ curl -s localhost:${PORT:-8082}/api/v1/model/metrics
 | `python -m ml predict` | Прогнозы → БД |
 | `go test ./...` | Тесты API |
 | `pytest tests` | Тесты признаков / Elo |
+| `python -m ml compare` | Метрики сейчас против снимка 16.10 (Markdown для отчёта) |
 
 ## Архитектура
 

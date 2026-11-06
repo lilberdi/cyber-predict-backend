@@ -1,0 +1,38 @@
+{
+  "_note": "Снимок метрик на 16.10.2026 (после улучшения Elo, коммит cc316d5). Числа перенесены из docs/pm/10-sostoyanie-proekta-dlya-zashchity.md, разделы 3 и 8. База для `python -m ml compare`.",
+  "model_name": "elo_xgboost",
+  "model_version": "0.2.0",
+  "n_train": 7960,
+  "n_test": 1990,
+  "accuracy": 0.632,
+  "log_loss": 0.633,
+  "brier": 0.2215,
+  "extra": {
+    "data": {
+      "source": "pandascore",
+      "n_matches": 9950,
+      "n_teams": 933,
+      "from": "2026-02-26",
+      "to": "2026-10-15"
+    },
+    "comparison": {
+      "elo_only": { "accuracy": 0.636, "log_loss": 0.641, "brier": 0.225, "label": "Elo (правило фаворита)" },
+      "elo_logreg": { "accuracy": 0.633, "log_loss": 0.641, "brier": 0.225, "label": "Logistic regression" },
+      "elo_xgboost": { "accuracy": 0.632, "log_loss": 0.633, "brier": 0.2215, "label": "XGBoost" }
+    },
+    "walk_forward": {
+      "folds": 5,
+      "results": {
+        "elo_only": { "accuracy": { "mean": 0.620, "std": 0.022 }, "log_loss": { "mean": 0.649 }, "brier": { "mean": 0.229 } },
+        "elo_logreg": { "accuracy": { "mean": 0.624, "std": 0.009 }, "log_loss": { "mean": 0.646 }, "brier": { "mean": 0.227 } },
+        "elo_xgboost": { "accuracy": { "mean": 0.628, "std": 0.018 }, "log_loss": { "mean": 0.644 }, "brier": { "mean": 0.226 } }
+      }
+    },
+    "significance": {
+      "xgboost_accuracy": { "mean": 0.632, "ci95": [0.611, 0.653] },
+      "xgboost_minus_elo": { "mean": -0.0045, "ci95": [-0.022, 0.013] }
+    },
+    "calibration": { "chosen": "raw", "ece": 0.020 }
+  },
+  "live_accuracy": { "evaluated": 0, "correct": 0, "note": "На 16.10 выборки не было: прогнозы перезаписывались после старта (ошибка исправлена 16.10)." }
+}

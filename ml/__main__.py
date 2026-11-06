@@ -25,6 +25,11 @@ def main(argv: list[str] | None = None) -> int:
     sub.add_parser("sync-rosters", help="Pull current rosters of tracked teams, record transfers")
     sub.add_parser("rate-players", help="Update Team Impact Rating of players")
     sub.add_parser("worker", help="Loop: train if needed, refresh XGBoost predictions")
+    p_cmp = sub.add_parser("compare", help="Markdown: metrics now vs the 16.10.2026 snapshot (+ live accuracy)")
+    p_cmp.add_argument("--baseline", help="old metrics.json (default: ml/baseline/metrics-2026-10-16.json)")
+    p_cmp.add_argument("--current", help="new metrics.json (default: ml/artifacts/metrics.json)")
+    p_cmp.add_argument("--out", help="also write the Markdown to this file")
+    p_cmp.add_argument("--no-live", action="store_true", help="do not query PostgreSQL for live accuracy")
 
     args = parser.parse_args(argv)
 
@@ -84,6 +89,13 @@ def main(argv: list[str] | None = None) -> int:
         from ml.worker import run
 
         run()
+        return 0
+
+    if args.cmd == "compare":
+        from ml.compare import compare
+
+        sys.stdout.reconfigure(encoding="utf-8")
+        print(compare(args.baseline, args.current, args.out, with_live=not args.no_live))
         return 0
 
     parser.error("unknown command")

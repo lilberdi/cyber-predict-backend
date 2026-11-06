@@ -15,7 +15,7 @@ from xgboost import XGBClassifier
 
 from ml.config import ARTIFACTS_DIR, MODEL_NAME, MODEL_VERSION, XGB_MODEL_NAME
 from ml.db import connect
-from ml.features import EXTRA_FEATURES, FEATURE_COLUMNS, XGB_FEATURE_COLUMNS, build_book, build_pre_match_features
+from ml.features import EXTRA_FEATURES, FEATURE_COLUMNS, XGB_FEATURE_COLUMNS, build_book, build_pre_match_features, elo_timeline
 from ml.load_history import finished_matches_frame
 
 MIN_KNOWN_GAMES = 10  # a team counts as "known" after this many matches in history
@@ -305,7 +305,27 @@ def _persist_elo(history: pd.DataFrame) -> None:
                     """,
                     (float(rating), int(book.elo.played.get(name, 0)), name),
                 )
+            _persist_elo_history(cur, history)
         conn.commit()
+
+
+def _persist_elo_history(cur, history: pd.DataFrame) -> int:
+    """Rebuild team_elo_history from the same replay as team_elo (one row per team per match)."""
+    cur.execute("SELECT id, lower(name) AS name FROM teams")
+    team_ids = {r["name"]: int(r["id"]) for r in cur.fetchall()}
+    cur.execute("SELECT id, external_id FROM matches WHERE external_id = ANY(%s)", (list(history["match_id"].astype(str)),))
+    match_ids = {r["external_id"]: int(r["id"]) for r in cur.fetchall()}
+
+    cur.execute("DELETE FROM team_elo_history")
+    n = 0
+    with cur.copy("COPY team_elo_history (team_id, match_id, played_at, rating_after, delta) FROM STDIN") as copy:
+        for p in elo_timeline(history):
+            tid, mid = team_ids.get(str(p["team"]).lower()), match_ids.get(str(p["match_id"]))
+            if tid is None or mid is None or pd.isna(p["played_at"]):
+                continue
+            copy.write_row((tid, mid, p["played_at"].to_pydatetime(), round(float(p["rating_after"]), 3), round(float(p["delta"]), 3)))
+            n += 1
+    return n
 
 
 def _persist_metrics(report: dict) -> None:

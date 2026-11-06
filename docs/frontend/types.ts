@@ -208,7 +208,11 @@ export interface Player {
 export interface RatingPoint { match_id: number; played_at: string; team_id: number; rating_after: number; delta: number }
 export interface RosterStint { team: Team; joined_at: string; left_at?: string | null }
 export interface PlayerDetail extends Player { rating_history: RatingPoint[]; teams: RosterStint[] }
-export interface TeamDetail extends Team { elo?: number | null; elo_matches: number; roster: Player[]; roster_note: string }
+export interface TeamDetail extends Team {
+  elo?: number | null; elo_matches: number; roster: Player[]; roster_note: string;
+  /** Старые бэкенды поля не отдают. */
+  elo_history?: EloPoint[]; form?: FormResult[];
+}
 export interface Transfer { player: Player; kind: 'join' | 'leave' | 'transfer'; from_team?: Team; to_team?: Team; changed_at: string }
 
 // ---- POST /matches/refresh (кнопка «Обновить матчи») ----
@@ -225,3 +229,15 @@ export interface RefreshResult {
   cooldown_seconds: number
   newly_finished: Match[] // сыгранные и не засчитанные, новые сверху
 }
+
+// ---- Teams: Elo ranking, history, head-to-head, upsets ----
+/** Один засчитанный матч с точки зрения команды (форма W/L). */
+export interface FormResult { match_id: number; played_at?: string; opponent: Team; won: boolean; score_for?: number | null; score_against?: number | null }
+/** Elo команды после матча. */
+export interface EloPoint { match_id: number; played_at: string; rating_after: number; delta: number; opponent?: Team; won?: boolean }
+export interface TeamRanking { rank: number; team: Team; elo: number; elo_matches: number; change_7d?: number | null; last_played?: string | null; form: FormResult[] }
+export interface HeadToHead {
+  match_id: number; team1: Team; team2: Team; before?: string; window_days: number;
+  team1_wins: number; team2_wins: number; meetings: Match[]; form1: FormResult[]; form2: FormResult[];
+}
+export interface Upsets { threshold: number; confident: number; upsets: number; rate: number; items: Match[]; note: string }

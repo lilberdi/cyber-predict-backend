@@ -133,10 +133,12 @@ type PlayerDetail struct {
 
 type TeamDetail struct {
 	Team
-	Elo        *float64 `json:"elo,omitempty"`
-	EloMatches int      `json:"elo_matches"`
-	Roster     []Player `json:"roster"`
-	RosterNote string   `json:"roster_note"`
+	Elo        *float64     `json:"elo,omitempty"`
+	EloMatches int          `json:"elo_matches"`
+	Roster     []Player     `json:"roster"`
+	RosterNote string       `json:"roster_note"`
+	EloHistory []EloPoint   `json:"elo_history"`
+	Form       []FormResult `json:"form"`
 }
 
 type Transfer struct {
@@ -145,4 +147,59 @@ type Transfer struct {
 	FromTeam  *Team     `json:"from_team,omitempty"`
 	ToTeam    *Team     `json:"to_team,omitempty"`
 	ChangedAt time.Time `json:"changed_at"`
+}
+
+// FormResult is one finished, counted match from the point of view of a team.
+type FormResult struct {
+	MatchID      int64      `json:"match_id"`
+	PlayedAt     *time.Time `json:"played_at,omitempty"`
+	Opponent     Team       `json:"opponent"`
+	Won          bool       `json:"won"`
+	ScoreFor     *int       `json:"score_for,omitempty"`
+	ScoreAgainst *int       `json:"score_against,omitempty"`
+}
+
+// TeamRanking is a row of the team Elo table.
+type TeamRanking struct {
+	Rank       int          `json:"rank"`
+	Team       Team         `json:"team"`
+	Elo        float64      `json:"elo"`
+	EloMatches int          `json:"elo_matches"`
+	Change7d   *float64     `json:"change_7d,omitempty"`
+	LastPlayed *time.Time   `json:"last_played,omitempty"`
+	Form       []FormResult `json:"form"`
+}
+
+// EloPoint is the team rating right after a rated match.
+type EloPoint struct {
+	MatchID     int64     `json:"match_id"`
+	PlayedAt    time.Time `json:"played_at"`
+	RatingAfter float64   `json:"rating_after"`
+	Delta       float64   `json:"delta"`
+	Opponent    *Team     `json:"opponent,omitempty"`
+	Won         *bool     `json:"won,omitempty"`
+}
+
+// HeadToHead is the pre-match context of a match: meetings of the two teams and their form.
+type HeadToHead struct {
+	MatchID    int64        `json:"match_id"`
+	Team1      Team         `json:"team1"`
+	Team2      Team         `json:"team2"`
+	Before     *time.Time   `json:"before,omitempty"`
+	WindowDays int          `json:"window_days"`
+	Team1Wins  int          `json:"team1_wins"`
+	Team2Wins  int          `json:"team2_wins"`
+	Meetings   []Match      `json:"meetings"`
+	Form1      []FormResult `json:"form1"`
+	Form2      []FormResult `json:"form2"`
+}
+
+// Upsets lists counted matches where the model favourite (p >= threshold) lost.
+type Upsets struct {
+	Threshold float64 `json:"threshold"`
+	Confident int     `json:"confident"`
+	Upsets    int     `json:"upsets"`
+	Rate      float64 `json:"rate"`
+	Items     []Match `json:"items"`
+	Note      string  `json:"note"`
 }

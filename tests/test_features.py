@@ -170,3 +170,41 @@ def test_started_match_forecast_is_frozen():
     assert not is_started(None, now)
     assert "DO NOTHING" in _UPSERT_PREDICTION_FROZEN and "created_at" not in _UPSERT_PREDICTION_FROZEN
     assert "created_at = now()" in _UPSERT_PREDICTION
+
+
+def test_elo_timeline_ends_at_current_rating():
+    from ml.features import build_book, elo_timeline
+
+    t0 = datetime(2025, 1, 1, tzinfo=timezone.utc)
+    history = pd.DataFrame(
+        [
+            {"match_id": "m1", "played_at": t0, "team1": "A", "team2": "B", "winner": "A", "score1": 2, "score2": 0},
+            {"match_id": "m2", "played_at": t0 + timedelta(days=1), "team1": "B", "team2": "C", "winner": "C", "score1": 1, "score2": 2},
+            {"match_id": "m3", "played_at": t0 + timedelta(days=2), "team1": "A", "team2": "C", "winner": "C", "score1": 0, "score2": 2},
+        ]
+    )
+    points = elo_timeline(history)
+    assert len(points) == 6  # two teams per match
+    book = build_book(history)
+    last = {}
+    for p in points:
+        last[p["team"]] = p
+    for team, p in last.items():
+        assert abs(p["rating_after"] - book.elo.rating(team)) < 1e-9
+    # winner of the first match goes up by exactly what the loser lost (equal K for newcomers)
+    a1, b1 = points[0], points[1]
+    assert a1["delta"] > 0 and abs(a1["delta"] + b1["delta"]) < 1e-9
+
+
+def test_compare_renders_against_baseline():
+    from ml.compare import DEFAULT_BASELINE, render
+    import json
+
+    old = json.loads(DEFAULT_BASELINE.read_text(encoding="utf-8"))
+    new = json.loads(json.dumps(old))
+    new["extra"]["data"]["n_matches"] = 11200
+    new["extra"]["comparison"]["elo_xgboost"]["accuracy"] = 0.640
+    text = render(old, new, {"evaluated": 0, "correct": 0})
+    assert "11200" in text and "9950" in text
+    assert "+0,8 п.п. (лучше)" in text
+    assert "Пока нет ни одного оценённого матча." in text

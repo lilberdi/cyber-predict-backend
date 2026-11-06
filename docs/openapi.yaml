@@ -835,6 +835,32 @@ components:
         by_model:
           type: object
           additionalProperties: { $ref: "#/components/schemas/AccuracyBucket" }
+        by_tier:
+          type: object
+          description: Разрез по тиру турнира (s, a, b, c, d, unknown).
+          additionalProperties: { $ref: "#/components/schemas/AccuracyBucket" }
+        log_loss: { type: number, description: "Штраф за вероятности, меньше = лучше. Ориентир «всегда 50%» = 0.693." }
+        brier: { type: number, description: "Средний квадрат ошибки вероятности. Ориентир «всегда 50%» = 0.25." }
+        reliability:
+          type: array
+          description: Калибровка по вероятности фаворита (сказано vs выиграл).
+          items:
+            type: object
+            properties:
+              bin: { type: string, example: "0.6-0.7" }
+              n: { type: integer }
+              predicted: { type: number }
+              actual: { type: number }
+        timeline:
+          type: array
+          description: Накопленная точность по дням (UTC), для графика.
+          items:
+            type: object
+            properties:
+              date: { type: string, example: "2026-10-20" }
+              evaluated: { type: integer }
+              correct: { type: integer }
+              accuracy: { type: number }
         since: { type: string, format: date-time, nullable: true }
         note: { type: string }
     LiveAccuracyResponse:

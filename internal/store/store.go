@@ -128,47 +128,31 @@ func MarkPredictionCorrect(m *model.Match) {
 // LiveAccuracy scores stored pre-match predictions against real results.
 func (s *Store) LiveAccuracy(ctx context.Context) (model.LiveAccuracy, error) {
 	rows, err := s.pool.Query(ctx, `
-SELECT p.model_name, COALESCE(p.confidence, 'unknown'),
-       ((p.p_team1_win >= 0.5) = (m.winner_team_id = m.team1_id)) AS correct,
-       m.scheduled_at
+SELECT p.model_name, COALESCE(p.confidence, 'unknown'), COALESCE(lower(m.tournament_tier), 'unknown'),
+       p.p_team1_win, (m.winner_team_id = m.team1_id) AS team1_won, m.scheduled_at
 FROM matches m
 JOIN predictions p ON p.match_id = m.id
 WHERE m.status = 'finished' AND m.winner_team_id IS NOT NULL AND m.voided_reason IS NULL
   AND p.created_at <= m.scheduled_at AND p.p_team1_win <> 0.5
+ORDER BY m.scheduled_at, m.id
 `)
 	if err != nil {
 		return model.LiveAccuracy{}, err
 	}
 	defer rows.Close()
 
-	out := model.LiveAccuracy{
-		ByConfidence: map[string]model.AccuracyBucket{},
-		ByModel:      map[string]model.AccuracyBucket{},
-		Note:         "Only predictions stored before the match start are counted; exact 50/50 calls are excluded.",
-	}
-	add := func(b model.AccuracyBucket, ok bool) model.AccuracyBucket {
-		b.Evaluated++
-		if ok {
-			b.Correct++
-		}
-		b.Accuracy = float64(b.Correct) / float64(b.Evaluated)
-		return b
-	}
+	var items []liveRow
 	for rows.Next() {
-		var name, conf string
-		var ok bool
-		var at *time.Time
-		if err := rows.Scan(&name, &conf, &ok, &at); err != nil {
+		var r liveRow
+		if err := rows.Scan(&r.model, &r.confidence, &r.tier, &r.p, &r.team1Won, &r.at); err != nil {
 			return model.LiveAccuracy{}, err
 		}
-		out.AccuracyBucket = add(out.AccuracyBucket, ok)
-		out.ByConfidence[conf] = add(out.ByConfidence[conf], ok)
-		out.ByModel[name] = add(out.ByModel[name], ok)
-		if at != nil && (out.Since == nil || at.Before(*out.Since)) {
-			out.Since = at
-		}
+		items = append(items, r)
 	}
-	return out, rows.Err()
+	if err := rows.Err(); err != nil {
+		return model.LiveAccuracy{}, err
+	}
+	return scoreLive(items), nil
 }
 
 func (s *Store) GetMatch(ctx context.Context, id int64) (model.Match, error) {

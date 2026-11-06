@@ -63,13 +63,35 @@ type AccuracyBucket struct {
 	Accuracy  float64 `json:"accuracy"`
 }
 
+// ReliabilityBin compares the stated probability of the favorite with how often the favorite won.
+type ReliabilityBin struct {
+	Bin       string  `json:"bin"`
+	N         int     `json:"n"`
+	Predicted float64 `json:"predicted"`
+	Actual    float64 `json:"actual"`
+}
+
+// AccuracyPoint is the running accuracy after all matches up to and including Date (UTC).
+type AccuracyPoint struct {
+	Date      string  `json:"date"`
+	Evaluated int     `json:"evaluated"`
+	Correct   int     `json:"correct"`
+	Accuracy  float64 `json:"accuracy"`
+}
+
 // LiveAccuracy is the track record of predictions made before the match started.
 type LiveAccuracy struct {
 	AccuracyBucket
 	ByConfidence map[string]AccuracyBucket `json:"by_confidence"`
 	ByModel      map[string]AccuracyBucket `json:"by_model"`
-	Since        *time.Time                `json:"since,omitempty"`
-	Note         string                    `json:"note"`
+	ByTier       map[string]AccuracyBucket `json:"by_tier"`
+	// LogLoss and Brier score the probabilities themselves (lower is better; coin flip = 0.693 / 0.25).
+	LogLoss     float64          `json:"log_loss"`
+	Brier       float64          `json:"brier"`
+	Reliability []ReliabilityBin `json:"reliability"`
+	Timeline    []AccuracyPoint  `json:"timeline"`
+	Since       *time.Time       `json:"since,omitempty"`
+	Note        string           `json:"note"`
 }
 
 type ModelMetrics struct {

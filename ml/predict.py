@@ -31,17 +31,21 @@ def _explanation(team1: str, team2: str, p: float, feat: dict) -> str:
 
 
 _FLIPPED = {"elo_diff", "form5_diff", "form10_diff", "h2h_diff", "exp_diff", "ewm_form_diff", "rest_diff", "margin_diff"}
-MIN_HISTORY = 10  # matches of the less-known team needed for a full-strength forecast
+MIN_HISTORY = 10  # below this the note says history is thin; the probability is NOT shrunk (see _calibrated_proba)
 
 
 def _calibrated_proba(artifact: dict, feat: dict) -> tuple[float, int]:
-    """Slot-symmetric probability, shrunk toward 50% when a team has little history."""
+    """Slot-symmetric probability.
+
+    No shrinking toward 50% for teams with little history: on the held-out 20% it raised log-loss
+    from 0.626 to 0.646 (0.580 -> 0.656 on matches where a team has < 10 games), because the number
+    of games played is itself a useful signal and the model already uses it (exp_diff, adaptive-K Elo).
+    """
     p_a = predict_proba(artifact, feat)
     flipped = {k: (-v if k in _FLIPPED else v) for k, v in feat.items()}
     p = (p_a + (1.0 - predict_proba(artifact, flipped))) / 2.0
     known = min(feat.get("games_team1", 0), feat.get("games_team2", 0))
-    weight = min(1.0, known / MIN_HISTORY)
-    return 0.5 + (p - 0.5) * weight, known
+    return p, known
 
 
 def _top_features(artifact: dict, feat: dict, limit: int = 5) -> list[dict]:
@@ -123,7 +127,7 @@ def predict_upcoming() -> int:
                 top = _top_features(artifact, feat)
                 note = ""
                 if known < MIN_HISTORY:
-                    note = f" Мало истории (у менее известной команды {known} матчей) — прогноз приближен к 50%."
+                    note = f" Мало истории (у менее известной команды {known} матчей) — оценка менее надёжна."
                 cur.execute(
                     _UPSERT_PREDICTION_FROZEN if is_started(row["scheduled_at"], now) else _UPSERT_PREDICTION,
                     (

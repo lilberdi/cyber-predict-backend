@@ -1,7 +1,8 @@
 """Keeps real history, the model and XGBoost predictions fresh.
 
-Every cycle: refresh predictions for new upcoming matches. Every few hours: pull
-newly finished matches (this also closes the loop for matches we predicted).
+Every cycle: refresh predictions for new upcoming matches. Every 15 minutes: pull the last
+day of finished matches (stale results make pre-match features wrong and close the loop for
+matches we predicted). Every 6 hours: a 3-day backfill in case the worker was down.
 Once a day: retrain.
 """
 
@@ -19,7 +20,8 @@ from ml.rosters import sync_rosters
 from ml.train import train
 
 INTERVAL_SECONDS = int(os.getenv("PREDICT_INTERVAL_SECONDS", "600"))
-INGEST_EVERY = int(os.getenv("INGEST_INTERVAL_SECONDS", str(6 * 3600)))
+INGEST_EVERY = int(os.getenv("INGEST_INTERVAL_SECONDS", "900"))
+BACKFILL_EVERY = int(os.getenv("BACKFILL_INTERVAL_SECONDS", str(6 * 3600)))
 ROSTER_EVERY = int(os.getenv("ROSTER_INTERVAL_SECONDS", str(3600)))
 RETRAIN_EVERY = int(os.getenv("RETRAIN_INTERVAL_SECONDS", str(24 * 3600)))
 
@@ -45,7 +47,7 @@ def _players_cycle() -> None:
 
 
 def run() -> None:
-    last_ingest = last_train = time.monotonic()
+    last_ingest = last_backfill = last_train = time.monotonic()
     last_roster = -ROSTER_EVERY  # sync rosters on the first cycle
     ready = False
     while True:
@@ -55,8 +57,11 @@ def run() -> None:
                 ready = True
             now = time.monotonic()
             if PANDASCORE_TOKEN and now - last_ingest >= INGEST_EVERY:
-                print(f"ingest recent: {ingest_recent()}", flush=True)
+                backfill = now - last_backfill >= BACKFILL_EVERY
+                print(f"ingest recent: {ingest_recent(3 if backfill else 1)}", flush=True)
                 last_ingest = now
+                if backfill:
+                    last_backfill = now
             if PANDASCORE_TOKEN and now - last_roster >= ROSTER_EVERY:
                 last_roster = now
                 _players_cycle()

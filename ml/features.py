@@ -157,3 +157,26 @@ def snapshot_for_upcoming(
     team1, team2 = resolve_team(team1, history), resolve_team(team2, history)
     book = book or build_book(history, before=when)
     return book.features(team1, team2, when, best_of, tier)
+
+
+def elo_timeline(history: pd.DataFrame) -> list[dict]:
+    """Elo of both teams after every finished match, in play order.
+
+    Uses the same replay as build_book, so the last point of each team equals team_elo.
+    Rows: match_id, team, played_at, rating_after, delta.
+    """
+    df = history.sort_values("played_at")
+    book = TeamBook()
+    out: list[dict] = []
+    for row in df.itertuples(index=False):
+        t1, t2 = row.team1, row.team2
+        before = (book.elo.rating(t1), book.elo.rating(t2))
+        when = pd.Timestamp(row.played_at)
+        book.update(
+            t1, t2, when, row.winner == t1,
+            getattr(row, "score1", None), getattr(row, "score2", None), getattr(row, "tournament_tier", None),
+        )
+        for team, old in ((t1, before[0]), (t2, before[1])):
+            new = book.elo.rating(team)
+            out.append({"match_id": row.match_id, "team": team, "played_at": when, "rating_after": new, "delta": new - old})
+    return out

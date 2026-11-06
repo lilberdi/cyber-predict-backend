@@ -273,6 +273,89 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
 
+  /api/v1/matches/upsets:
+    get:
+      tags: [Матчи]
+      operationId: listUpsets
+      summary: Неожиданные результаты (уверенный фаворит модели проиграл)
+      description: |
+        **Зачем.** Честно показать, где модель ошибается сильнее всего.
+
+        **Что делает.** Берёт сыгранные засчитанные матчи с прогнозом, сохранённым **до** начала,
+        у которых вероятность фаворита ≥ `min_prob`, и возвращает те, где фаворит проиграл
+        (самые уверенные ошибки сверху). `confident` — сколько всего было таких уверенных прогнозов,
+        `upsets` — сколько из них ошибочны, `rate` = upsets / confident. Для честной модели
+        при `min_prob=0.75` доля ошибок должна быть не больше ~25%.
+      parameters:
+        - name: min_prob
+          in: query
+          description: Порог уверенности фаворита, от 0.5 до 1 (по умолчанию 0.75).
+          schema: { type: number, default: 0.75, minimum: 0.5, maximum: 0.99 }
+        - name: limit
+          in: query
+          description: По умолчанию 50, максимум 100.
+          schema: { type: integer, default: 50, minimum: 1, maximum: 100 }
+      responses:
+        "200":
+          description: Ошибки модели и общая статистика
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UpsetsResponse"
+        "400":
+          description: "`min_prob` вне диапазона [0.5, 1)"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Ошибка чтения PostgreSQL
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /api/v1/matches/{id}/h2h:
+    get:
+      tags: [Матчи]
+      operationId: getHeadToHead
+      summary: Личные встречи и форма команд перед матчем
+      description: |
+        **Зачем.** Показать на карточке матча данные, на которых стоят признаки `h2h_diff` и `form5_diff`.
+
+        **Что делает.** Берёт только засчитанные матчи **до** начала этого матча (или до текущего момента,
+        если матч ещё не начался):
+        - `team1_wins` / `team2_wins` — счёт личных встреч за `window_days` (365 дней, как у признака);
+        - `meetings` — последние 5 личных встреч;
+        - `form1` / `form2` — последние 5 матчей каждой команды (W/L, соперник, счёт).
+      parameters:
+        - $ref: "#/components/parameters/MatchID"
+      responses:
+        "200":
+          description: Личные встречи и форма
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HeadToHeadResponse"
+        "400":
+          description: "`id` не целое положительное число"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: Матча с таким id нет
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Ошибка чтения PostgreSQL
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
   /api/v1/rankings/players:
     get:
       tags: [Игроки]
@@ -302,6 +385,43 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/PlayerListResponse"
+        "500":
+          description: Ошибка чтения PostgreSQL
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /api/v1/rankings/teams:
+    get:
+      tags: [Игроки]
+      operationId: rankTeams
+      summary: Рейтинг команд по Elo
+      description: |
+        **Что это.** Таблица команд по нашему Elo (тот же рейтинг, что в признаке `elo_diff`).
+        `change_7d` — изменение рейтинга за 7 дней (для новой команды — с первого матча),
+        `form` — последние 5 засчитанных матчей, новые первыми. Рейтинг пересчитывается
+        при переобучении модели (раз в сутки).
+      parameters:
+        - name: limit
+          in: query
+          description: По умолчанию 50, максимум 200.
+          schema: { type: integer, default: 50, minimum: 1, maximum: 200 }
+        - name: min_games
+          in: query
+          description: Минимум сыгранных матчей в истории (по умолчанию 10, раньше рейтинг ненадёжен).
+          schema: { type: integer, default: 10, minimum: 0 }
+        - name: active_days
+          in: query
+          description: Скрыть команды без матчей за столько дней (по умолчанию 90, 0 — не скрывать).
+          schema: { type: integer, default: 90, minimum: 0 }
+      responses:
+        "200":
+          description: Команды по убыванию Elo
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TeamRankingListResponse"
         "500":
           description: Ошибка чтения PostgreSQL
           content:
@@ -344,10 +464,12 @@ paths:
     get:
       tags: [Игроки]
       operationId: getTeam
-      summary: Карточка команды с текущим составом
+      summary: Карточка команды с текущим составом и историей Elo
       description: |
         Elo команды и текущий состав из PandaScore (в списке могут быть запасные).
         История составов ведётся с момента запуска отслеживания.
+        `elo_history` — рейтинг после каждого из последних 100 матчей (старые первыми),
+        `form` — последние 5 засчитанных матчей.
       parameters:
         - name: id
           in: path
@@ -686,6 +808,71 @@ components:
             elo_matches: { type: integer }
             roster: { type: array, items: { $ref: "#/components/schemas/Player" } }
             roster_note: { type: string }
+            elo_history: { type: array, items: { $ref: "#/components/schemas/EloPoint" } }
+            form: { type: array, items: { $ref: "#/components/schemas/FormResult" } }
+    FormResult:
+      type: object
+      description: Один засчитанный матч с точки зрения команды
+      properties:
+        match_id: { type: integer, format: int64 }
+        played_at: { type: string, format: date-time }
+        opponent: { $ref: "#/components/schemas/Team" }
+        won: { type: boolean }
+        score_for: { type: integer, nullable: true }
+        score_against: { type: integer, nullable: true }
+    EloPoint:
+      type: object
+      properties:
+        match_id: { type: integer, format: int64 }
+        played_at: { type: string, format: date-time }
+        rating_after: { type: number, example: 1712.4 }
+        delta: { type: number, example: 12.8 }
+        opponent: { $ref: "#/components/schemas/Team" }
+        won: { type: boolean }
+    TeamRanking:
+      type: object
+      properties:
+        rank: { type: integer, description: "При равном (округлённом) рейтинге место общее: 1, 1, 3" }
+        team: { $ref: "#/components/schemas/Team" }
+        elo: { type: number, example: 1845.2 }
+        elo_matches: { type: integer }
+        change_7d: { type: number, nullable: true, example: -14.6 }
+        last_played: { type: string, format: date-time, nullable: true }
+        form: { type: array, items: { $ref: "#/components/schemas/FormResult" } }
+    TeamRankingListResponse:
+      type: object
+      properties:
+        data: { type: array, items: { $ref: "#/components/schemas/TeamRanking" } }
+    HeadToHead:
+      type: object
+      properties:
+        match_id: { type: integer, format: int64 }
+        team1: { $ref: "#/components/schemas/Team" }
+        team2: { $ref: "#/components/schemas/Team" }
+        before: { type: string, format: date-time, description: Учитываются только матчи до этого момента }
+        window_days: { type: integer, example: 365 }
+        team1_wins: { type: integer }
+        team2_wins: { type: integer }
+        meetings: { type: array, items: { $ref: "#/components/schemas/Match" } }
+        form1: { type: array, items: { $ref: "#/components/schemas/FormResult" } }
+        form2: { type: array, items: { $ref: "#/components/schemas/FormResult" } }
+    HeadToHeadResponse:
+      type: object
+      properties:
+        data: { $ref: "#/components/schemas/HeadToHead" }
+    Upsets:
+      type: object
+      properties:
+        threshold: { type: number, example: 0.75 }
+        confident: { type: integer, description: Уверенных прогнозов (фаворит ≥ threshold) с известным итогом }
+        upsets: { type: integer, description: Из них фаворит проиграл }
+        rate: { type: number, description: upsets / confident }
+        items: { type: array, items: { $ref: "#/components/schemas/Match" } }
+        note: { type: string }
+    UpsetsResponse:
+      type: object
+      properties:
+        data: { $ref: "#/components/schemas/Upsets" }
     Transfer:
       type: object
       properties:

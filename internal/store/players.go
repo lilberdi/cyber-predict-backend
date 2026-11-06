@@ -138,7 +138,7 @@ WHERE r.player_id = $1 ORDER BY r.joined_at DESC
 }
 
 func (s *Store) GetTeam(ctx context.Context, id int64) (model.TeamDetail, error) {
-	d := model.TeamDetail{Roster: []model.Player{}}
+	d := model.TeamDetail{Roster: []model.Player{}, EloHistory: []model.EloPoint{}, Form: []model.FormResult{}}
 	err := s.pool.QueryRow(ctx, `
 SELECT t.id, t.name, t.slug, t.image_url, e.rating, COALESCE(e.matches_played, 0)
 FROM teams t LEFT JOIN team_elo e ON e.team_id = t.id WHERE t.id = $1
@@ -164,7 +164,11 @@ WHERE r.team_id = $1 ORDER BY COALESCE(pr.matches_played, 0) DESC, pr.rating DES
 		d.Roster = append(d.Roster, p)
 	}
 	d.RosterNote = "Текущий состав из PandaScore, в списке могут быть запасные. История составов ведётся с момента запуска отслеживания."
-	return d, rows.Err()
+	if err := rows.Err(); err != nil {
+		return d, err
+	}
+	rows.Close()
+	return d, s.attachTeamExtras(ctx, &d)
 }
 
 func (s *Store) ListTransfers(ctx context.Context, limit int) ([]model.Transfer, error) {
